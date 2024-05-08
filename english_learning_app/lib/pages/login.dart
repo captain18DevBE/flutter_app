@@ -1,5 +1,7 @@
+import 'package:english_learning_app/controllers/UserAuthController.dart';
 import 'package:english_learning_app/pages/home.dart';
 import 'package:english_learning_app/pages/signup.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,12 +13,39 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final UserAuthController _userAuthController = new UserAuthController();
+
   bool isHidden = true;
   bool isHidden2 = true;
   bool isHidden3 = true;
 
   TextEditingController _emailSigInController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
+
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _emailSigInController.dispose();
+    _passwordController.dispose();
+
+    super.dispose();
+
+  }
+
+  void _signIn() async {
+    String email = _emailSigInController.text; 
+    String password = _passwordController.text;
+
+    User? user = await _userAuthController.signInWithEmailPassword(email, password);
+
+    if(user != null) {
+      print("Login is successful!");
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+    } else {
+      print("Login is false");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +106,8 @@ class _LoginPageState extends State<LoginPage> {
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: () {
+
+
                 recoverDialogEmail();
               },
               style: TextButton.styleFrom(
@@ -89,9 +120,15 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-              },
+              onPressed: _signIn,
+              
+              // () {
+              //   String emailSignIn = _emailSigInController.text; 
+              //   String password = _passwordController.text;
+              //   cxc
+              //   Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              // }
+              
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
@@ -123,6 +160,8 @@ class _LoginPageState extends State<LoginPage> {
 
   TextFormField premadeTextField(Icon icon, String text) {
     return TextFormField(
+      controller: _emailSigInController,
+
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter your email';
@@ -150,6 +189,8 @@ class _LoginPageState extends State<LoginPage> {
 
   TextFormField premadePasswordField(Icon icon, String text) {
     return TextFormField(
+      controller: _passwordController,
+
       cursorColor: Colors.blue,
       validator: (value) {
         if (value == null || value.isEmpty) {
