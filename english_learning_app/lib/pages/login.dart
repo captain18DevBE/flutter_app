@@ -12,8 +12,11 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool isHidden = true;
-              bool isHidden2 = true;
-            bool isHidden3 = true;
+  bool isHidden2 = true;
+  bool isHidden3 = true;
+
+  TextEditingController _emailSigInController = new TextEditingController();
+  TextEditingController _passwordController = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {

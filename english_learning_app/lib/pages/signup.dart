@@ -11,6 +11,12 @@ class _SignUpPageState extends State<SignUpPage> {
   bool isHidden1 = true;
   bool isHidden2 = true;
 
+  TextEditingController _userNameController = new TextEditingController();
+  TextEditingController _emailSignUpController = new TextEditingController();
+  TextEditingController _passwordController = new TextEditingController();
+  TextEditingController _confirmPasswordController = new TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +32,8 @@ class _SignUpPageState extends State<SignUpPage> {
         centerTitle: true,
         shadowColor: Colors.black,
       ),
-      body: Container(
+      body: 
+      Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(colors: <Color>[
               Color(0xFF1976D2),
@@ -57,52 +64,56 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
+  
   Form signUpForm(BuildContext context) {
+    
     return Form(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          const SizedBox(height: 15,),
-          premadeTextField(Icon(Icons.person_outline, color: Colors.grey[700]),'Username'),
-          const SizedBox(height: 5),
-          premadeTextField(
-              Icon(Icons.mail_outline, color: Colors.grey[700]), 'Email'),
-          const SizedBox(height: 5),
-          premadePasswordField1(
-              Icon(Icons.lock_outline, color: Colors.grey[700]), 'Password'),
-          const SizedBox(height: 5),
-          premadePasswordField2(
-              Icon(Icons.lock_outline, color: Colors.grey[700]),
-              'Repeat Password'),
-              const SizedBox(height: 40),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                //LOGIN VALIDATION
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.blue,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const SizedBox(height: 15,),
+            premadeTextField(Icon(Icons.person_outline, color: Colors.grey[700]),'Username'),
+            const SizedBox(height: 5),
+            premadeTextField(
+                Icon(Icons.mail_outline, color: Colors.grey[700]), 'Email'),
+            const SizedBox(height: 5),
+            premadePasswordField1(
+                Icon(Icons.lock_outline, color: Colors.grey[700]), 'Password'),
+            const SizedBox(height: 5),
+            premadePasswordField2(
+                Icon(Icons.lock_outline, color: Colors.grey[700]),
+                'Repeat Password'),
+                const SizedBox(height: 40),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  //LOGIN VALIDATION
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blue,
+                ),
+                child: const Text('Sign up'),
               ),
-              child: const Text('Sign up'),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Already have an account?'),
-              TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: TextButton.styleFrom(foregroundColor: Colors.blue),
-                  child: const Text('Sign in'))
-            ],
-          ),
-        ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Already have an account?'),
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: TextButton.styleFrom(foregroundColor: Colors.blue),
+                    child: const Text('Sign in'))
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
