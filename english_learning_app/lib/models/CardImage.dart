@@ -1,4 +1,6 @@
 
 class CardImage {
+  String? urlPhoto;
+
   
 }
