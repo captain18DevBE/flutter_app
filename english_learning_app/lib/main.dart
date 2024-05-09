@@ -6,16 +6,16 @@ import 'package:flutter/material.dart';
 void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
-await Firebase.initializeApp(
-  options: FirebaseOptions(
-    apiKey: 'AIzaSyAxHI5zRTGrS3s2FeyWJ0vM9H08hX7whe4',
-    appId: 'flutterenglishapp',
-    messagingSenderId: 'sendid',
-    projectId: 'flutterenglishapp',
-    storageBucket: 'flutterenglishapp.appspot.com',
-  )
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: 'AIzaSyAxHI5zRTGrS3s2FeyWJ0vM9H08hX7whe4',
+      appId: 'flutterenglishapp',
+      messagingSenderId: 'sendid',
+      projectId: 'flutterenglishapp',
+      storageBucket: 'flutterenglishapp.appspot.com',
+    )
 
-);
+  );
   
   runApp(const MyApp());
 
