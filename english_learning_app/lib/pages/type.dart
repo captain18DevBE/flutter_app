@@ -14,7 +14,7 @@ class _TypePageState extends State<TypePage> {
 
   @override
   void initState() {
-    super.initState(); // Assuming we want users to type the English word
+    super.initState();
   }
 
   @override
@@ -33,7 +33,7 @@ class _TypePageState extends State<TypePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text('VIETNAMESE WORD'), // Display Vietnamese meaning
+            Text('VIETNAMESE WORD'),
             SizedBox(height: 16),
             TextField(
               controller: _controller,
@@ -41,18 +41,17 @@ class _TypePageState extends State<TypePage> {
                 hintText: 'Enter the English word',
               ),
               onSubmitted: (text) {
-                // Implement logic to check answer and update UI
                 if (text.toLowerCase() == answer.toLowerCase()) {
-                  // Show correct message
+                  //show applause
                 } else {
-                  // Show incorrect message and optionally display the correct answer
+                  //notify incorrect and show correct answer
                 }
               },
             ),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Implement logic to handle check answer button click (similar to onSubmitted)
+
               },
               child: Text('Check Answer'),
             ),
@@ -62,3 +61,6 @@ class _TypePageState extends State<TypePage> {
     );
   }
 }
+
+//decorate
+//complete function and create test list

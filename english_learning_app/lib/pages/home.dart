@@ -1,6 +1,8 @@
+import 'package:english_learning_app/pages/create_topic.dart';
 import 'package:english_learning_app/pages/profile.dart';
 import 'package:english_learning_app/pages/flashcard.dart';
 import 'package:english_learning_app/pages/quiz.dart';
+import 'package:english_learning_app/pages/signup.dart';
 import 'package:english_learning_app/pages/type.dart';
 import 'package:flutter/material.dart';
 
@@ -12,8 +14,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  int _selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
+
+    final List<Widget> _pages = [
+      FlashCardPage(),
+      QuizPage(),
+      CreateTopicPage(),
+      SignUpPage(),
+      ProfilePage(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
@@ -54,7 +68,7 @@ class _HomePageState extends State<HomePage> {
                           Text(
                             'John Doe',
                             style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
+                                fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                           // Email
                           Text(
@@ -101,12 +115,13 @@ class _HomePageState extends State<HomePage> {
           ]),
         ),
       ),
-      body: TypePage(),
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        // <-- this will hide the label text for the unselected items
+        currentIndex: _selectedIndex,
+        onTap: (index) => setState(() => _selectedIndex = index),
         items: [
           const BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined, color: Colors.blue),
+            icon: Icon(Icons.home_outlined),
             label: 'Home',
           ),
           const BottomNavigationBarItem(
@@ -121,7 +136,7 @@ class _HomePageState extends State<HomePage> {
                 child: const Icon(Icons.add, color: Colors.white),
               ),
             ),
-            label: '', // <-- set the label to an empty string
+            label: 'Create',
           ),
           const BottomNavigationBarItem(
               icon: Icon(Icons.my_library_books_outlined), label: 'Library'),

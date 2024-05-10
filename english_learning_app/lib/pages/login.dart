@@ -120,14 +120,14 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _signIn,
+              onPressed: //_signIn,
               
-              // () {
+               () {
               //   String emailSignIn = _emailSigInController.text; 
               //   String password = _passwordController.text;
               //   cxc
-              //   Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-              // }
+                 Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+               },
               
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
