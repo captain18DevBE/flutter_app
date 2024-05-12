@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class FlashCardPage extends StatefulWidget {
@@ -8,31 +9,8 @@ class FlashCardPage extends StatefulWidget {
 }
 
 class _FlashCardPageState extends State<FlashCardPage> {
-  bool showEnglish = true;
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Flashcard'),
-      ),
-      body: Center(
-        child: InkWell(
-          onTap: () {
-            setState(() {
-              showEnglish = !showEnglish;
-            });
-          },
-          child: Text(
-            showEnglish ? 'ENGLISH WORD' : 'VIETNAMESE WORD',
-            style: TextStyle(fontSize: 24),
-          ),
-        ),
-      ),
-    );
+    return const Placeholder();
   }
 }
-
-//Add nav bar to change between flashcard, quiz, type
-//Add list of words and swipe function to change word
-//Add decoration

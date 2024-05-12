@@ -2,6 +2,7 @@ import 'package:english_learning_app/pages/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
 
@@ -17,6 +18,9 @@ void main() async {
 
   );
   
+  await Hive.initFlutter();
+  var box = await Hive.openBox('appBox');
+
   runApp(const MyApp());
 
 }

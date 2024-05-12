@@ -37,6 +37,12 @@ dependencies:
   firebase_core: ^2.31.0
   cloud_firestore: ^4.17.3
   intl: ^0.19.0
+  flip_card: ^0.7.0
+  font_awesome_flutter: ^10.7.0
+  hive_flutter: ^1.1.0
+  quickalert: ^1.1.0
+  carousel_slider: ^4.2.1
+  swipe_cards: ^2.0.0+1
 
 dev_dependencies:
   flutter_test:
@@ -61,9 +67,12 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/quiz.jpg
+    - assets/thinking.jpg
+    - assets/win.png
+    # - images/a_dot_burr.jpeg
+    # - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -30,6 +30,14 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: Builder(builder: (BuildContext context) {
+          return IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () { Scaffold.of(context).openDrawer(); },
+            tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        );
+        }),
+        title: Text("Leaning", style: TextStyle(color: Colors.white),),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 5,
         backgroundColor: Colors.blue[700],
