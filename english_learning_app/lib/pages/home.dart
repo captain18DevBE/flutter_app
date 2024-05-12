@@ -1,9 +1,11 @@
+import 'package:english_learning_app/pages/create_folder.dart';
 import 'package:english_learning_app/pages/create_topic.dart';
 import 'package:english_learning_app/pages/profile.dart';
 import 'package:english_learning_app/pages/flashcard.dart';
 import 'package:english_learning_app/pages/quiz.dart';
 import 'package:english_learning_app/pages/signup.dart';
 import 'package:english_learning_app/pages/type.dart';
+import 'package:english_learning_app/pages/edit_topic.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,8 +26,8 @@ class _HomePageState extends State<HomePage> {
       FlashCardPage(),
       QuizPage(),
       CreateTopicPage(),
-      SignUpPage(),
-      ProfilePage(),
+      EditTopicPage(),
+      CreateFolderPage(),
     ];
 
     return Scaffold(

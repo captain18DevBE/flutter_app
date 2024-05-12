@@ -69,8 +69,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
               ),
               ElevatedButton.icon(
                 onPressed: () {},
-                icon: const Icon(Icons.check),
-                label: const Text('Done'),
+                style: ButtonStyle(backgroundColor:  MaterialStateProperty.all<Color>(Colors.green)),
+                icon: const Icon(Icons.check, color: Colors.white,),
+                label: const Text('Done', style: TextStyle(color: Colors.white),),
               ),
             ],
           ),
@@ -180,10 +181,28 @@ class AddWordDefinitionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton.icon(
-      onPressed: onAdd,
-      icon: const Icon(Icons.add, color: Colors.blue,),
-      label: const Text('Add Word & Definition', style: TextStyle(color: Colors.blue)),
+    return Container(
+      margin: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+      decoration: ShapeDecoration(
+        color: Colors.white,
+        shape: CircleBorder(),
+        shadows: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: const Offset(0, 3),
+          )
+        ]
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: IconButton(
+          onPressed: onAdd,
+          iconSize: 24.0,
+          icon: const Icon(Icons.add, color: Colors.blue),
+        ),
+      ),
     );
   }
 }
