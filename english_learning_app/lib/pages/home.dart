@@ -1,5 +1,6 @@
 import 'package:english_learning_app/pages/create_folder.dart';
 import 'package:english_learning_app/pages/create_topic.dart';
+import 'package:english_learning_app/pages/learning.dart';
 import 'package:english_learning_app/pages/profile.dart';
 import 'package:english_learning_app/pages/flashcard.dart';
 import 'package:english_learning_app/pages/quiz.dart';
@@ -23,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
 
     final List<Widget> _pages = [
-      FlashCardPage(),
+      Learning(),
       QuizPage(),
       CreateTopicPage(),
       EditTopicPage(),
