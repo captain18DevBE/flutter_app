@@ -17,16 +17,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-
     final List<Widget> _pages = [
       Learning(),
       QuizPage(),
-      CreateTopicPage(),
+      HomePage(),
       EditTopicPage(),
       CreateFolderPage(),
     ];
@@ -36,11 +34,16 @@ class _HomePageState extends State<HomePage> {
         leading: Builder(builder: (BuildContext context) {
           return IconButton(
             icon: const Icon(Icons.menu),
-            onPressed: () { Scaffold.of(context).openDrawer(); },
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
             tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-        );
+          );
         }),
-        title: Text("Leaning", style: TextStyle(color: Colors.white),),
+        title: Text(
+          "Leaning",
+          style: TextStyle(color: Colors.white),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 5,
         backgroundColor: Colors.blue[700],
@@ -79,7 +82,9 @@ class _HomePageState extends State<HomePage> {
                           Text(
                             'John Doe',
                             style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
                           ),
                           // Email
                           Text(
@@ -128,8 +133,15 @@ class _HomePageState extends State<HomePage> {
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
+        onTap: (index) {
+          if (index == 2) {
+            _showCreateDialog(context);
+          } else {
+            setState(() => _selectedIndex = index);
+          }
+        },
         items: [
           const BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
@@ -147,7 +159,7 @@ class _HomePageState extends State<HomePage> {
                 child: const Icon(Icons.add, color: Colors.white),
               ),
             ),
-            label: 'Create',
+            label: ''
           ),
           const BottomNavigationBarItem(
               icon: Icon(Icons.my_library_books_outlined), label: 'Library'),
@@ -158,6 +170,34 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Colors.blue,
         unselectedLabelStyle: const TextStyle(color: Colors.grey),
       ),
+    );
+  }
+
+  void _showCreateDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Create'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min, // Avoid excessive padding
+            children: [
+              ListTile(
+                title: const Text('Create Topic'),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => CreateTopicPage()));
+                },
+              ),
+              ListTile(
+                title: const Text('Create Folder'),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => CreateFolderPage()));
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
