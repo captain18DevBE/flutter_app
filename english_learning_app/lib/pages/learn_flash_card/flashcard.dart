@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:card_swiper/card_swiper.dart';
-import 'package:english_learning_app/pages/reusable_card.dart';
+import 'package:english_learning_app/pages/learn_flash_card/reusable_card.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/cupertino.dart';
 

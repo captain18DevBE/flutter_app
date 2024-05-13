@@ -1,9 +1,9 @@
 import 'package:english_learning_app/pages/create_folder.dart';
 import 'package:english_learning_app/pages/create_topic.dart';
-import 'package:english_learning_app/pages/learning.dart';
+import 'package:english_learning_app/pages/learn_multiple_choise/multiple_test.dart';
+import 'package:english_learning_app/pages/menu_topic/learning.dart';
 import 'package:english_learning_app/pages/profile.dart';
-import 'package:english_learning_app/pages/flashcard.dart';
-import 'package:english_learning_app/pages/quiz.dart';
+import 'package:english_learning_app/pages/learn_flash_card/flashcard.dart';
 import 'package:english_learning_app/pages/signup.dart';
 import 'package:english_learning_app/pages/type.dart';
 import 'package:english_learning_app/pages/edit_topic.dart';
@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
 
     final List<Widget> _pages = [
       Learning(),
-      QuizPage(),
+      MultipleTest(),
       CreateTopicPage(),
       EditTopicPage(),
       CreateFolderPage(),
@@ -136,7 +136,7 @@ class _HomePageState extends State<HomePage> {
             label: 'Home',
           ),
           const BottomNavigationBarItem(
-              icon: Icon(Icons.menu_book_rounded), label: 'Subjects'),
+              icon: Icon(Icons.menu_book_rounded), label: 'Explored'),
           BottomNavigationBarItem(
             icon: Align(
               alignment: Alignment.bottomCenter,

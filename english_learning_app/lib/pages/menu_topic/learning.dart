@@ -1,7 +1,11 @@
-import 'package:english_learning_app/pages/action_topics.dart';
-import 'package:english_learning_app/pages/all_constants.dart';
-import 'package:english_learning_app/pages/flashcard.dart';
-import 'package:english_learning_app/pages/reusable_card.dart';
+import 'dart:ffi';
+
+import 'package:english_learning_app/pages/learn_multiple_choise/multiple_test.dart';
+import 'package:english_learning_app/pages/learn_typing/typing_test.dart';
+import 'package:english_learning_app/pages/menu_topic/action_topics.dart';
+import 'package:english_learning_app/pages/setup_root/all_constants.dart';
+import 'package:english_learning_app/pages/learn_flash_card/flashcard.dart';
+import 'package:english_learning_app/pages/learn_flash_card/reusable_card.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -61,8 +65,6 @@ class _LearningState extends State<Learning> {
         child: Center(
           child: Column(
             children: [
-              Stack(
-                children:[ 
                 SizedBox(
                       width: 450,
                       height: 300,
@@ -71,34 +73,39 @@ class _LearningState extends State<Learning> {
                         controller: _pageController,
                         itemCount: 5,
                         itemBuilder: (context, index) {
-                          return FlipCard(
-                              direction: FlipDirection.VERTICAL,
-                              front: ReusableCard(
-                                  text: 'Con ga'
+                          return Stack(
+                            children: [
+                              FlipCard(
+                                direction: FlipDirection.VERTICAL,
+                                front: ReusableCard(
+                                    text: 'Con ga'
+                                    ),
+                                back: ReusableCard(
+                                    text: 'Chicken'),
+                                
+                                ),
+
+                                Positioned(
+                                  bottom: 50,
+                                  right: 50,
+                                  child: GestureDetector(
+                                    child: Container(
+                                      child: Icon(Icons.pages_rounded, color: mainColor,)
+                                    ),
+                                    onTap: () {
+                                        Navigator.push(context, 
+                                          MaterialPageRoute(builder: (context) => const FlashCardPage())
+                                        );
+                                    },
                                   ),
-                              back: ReusableCard(
-                                  text: 'Chicken'),
-                              
-                            );
+                                ),
+
+                              ]
+                          );
                         }
                         )
                   ),
-                Positioned(
-                  bottom: 50,
-                  right: 50,
-                  child: GestureDetector(
-                    child: Container(
-                      child: Icon(Icons.pages_rounded, color: mainColor,)
-                    ),
-                    onTap: () {
-                        Navigator.push(context, 
-                          MaterialPageRoute(builder: (context) => const FlashCardPage())
-                        );
-                    },
-                  ),
-                ),
-              ]
-              ),
+                  
               
               Positioned(
                 child: Container(
@@ -191,7 +198,7 @@ class _LearningState extends State<Learning> {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   gradient: LinearGradient(colors: <Color>[
                     Color(0xFF42A5F5),
-                    Color(0xFF90CAF9),
+                    Color.fromARGB(255, 117, 193, 255),
                   ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
                 ),
                 child: Row(
@@ -208,6 +215,7 @@ class _LearningState extends State<Learning> {
                 )
               ),
               onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => FlashCardPage()));
                 
               },
             ),
@@ -225,7 +233,7 @@ class _LearningState extends State<Learning> {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   gradient: LinearGradient(colors: <Color>[
                     Color(0xFF42A5F5),
-                    Color(0xFF90CAF9),
+                    Color.fromARGB(255, 117, 193, 255),
                   ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
                 ),
                 child: Row(
@@ -242,6 +250,7 @@ class _LearningState extends State<Learning> {
                 )
               ),
               onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => MultipleTest()));
                 
               },
             ),
@@ -249,46 +258,149 @@ class _LearningState extends State<Learning> {
                   ),
 
             Container(
-                margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                
-                child: Column(
-                  children: [
-                  GestureDetector(
-              child: Container(
-                height: 50,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  gradient: LinearGradient(colors: <Color>[
-                    Color(0xFF42A5F5),
-                    Color(0xFF90CAF9),
-                  ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+              margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
+              
+              child: Column(
+                children: [
+                GestureDetector(
+                child: Container(
+                  height: 50,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    gradient: LinearGradient(colors: <Color>[
+                      Color(0xFF42A5F5),
+                      Color.fromARGB(255, 117, 193, 255),
+                    ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 20,
+                      ),
+                      Icon(Icons.text_snippet, color: Colors.white),
+                      Container(
+                        width: 10,
+                      ),
+                      Text("Kiểm tra", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
+                    ],
+                  )
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 20,
-                    ),
-                    Icon(Icons.text_snippet, color: Colors.white),
-                    Container(
-                      width: 10,
-                    ),
-                    Text("Kiểm tra", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
-                  ],
-                )
-              ),
-              onTap: () {
-                
-              },
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTest()));
+                },
             ),
                       ],),
                   ),
 
             Container(
-              margin: EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Text("Thuật ngữ", ),
-            )
-            
+              margin: EdgeInsets.fromLTRB(25, 5, 20, 0),
+              alignment: Alignment.centerLeft,
+              child: Text("Thuật ngữ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+            ),
 
+            Container(
+
+              margin: EdgeInsets.fromLTRB(25, 5, 25, 5),  
+              
+              child: Column(children: [
+                Container(
+                  width: double.infinity,
+                  height: 90,
+                  margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.white
+                  ),
+
+                  child: Column(children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            margin: EdgeInsets.fromLTRB(25, 5, 25, 5),  
+                            child: Text("Tieng anh", style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),),
+                          ),
+                        ),
+
+                        GestureDetector(
+                          onTap: () {
+
+                          },
+                          child: Icon(Icons.volume_up, color: Colors.grey,),
+                        ),
+                        
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: GestureDetector(
+                            
+                            onTap: () {
+                          
+                            },
+                            child: Icon(Icons.star, color: Colors.grey,),
+                          ),
+                        )
+                      ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(25, 0, 25, 5), 
+                      alignment: Alignment.centerLeft,
+                      child: Text("Nghia cua the", style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),),
+                    )
+
+
+                  ],),
+                ),
+                Container(
+                  width: double.infinity,
+                  height: 80,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.white
+                  ),
+
+                  child: Column(children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            margin: EdgeInsets.fromLTRB(25, 5, 25, 5),  
+                            child: Text("Tieng anh", style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),),
+                          ),
+                        ),
+
+                        GestureDetector(
+                          onTap: () {
+
+                          },
+                          child: Icon(Icons.volume_up, color: Colors.grey,),
+                        ),
+                        
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: GestureDetector(
+                            
+                            onTap: () {
+                          
+                            },
+                            child: Icon(Icons.star, color: Colors.grey,),
+                          ),
+                        )
+                      ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(25, 0, 25, 5), 
+                      alignment: Alignment.centerLeft,
+                      child: Text("Nghia cua the", style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),),
+                    )
+
+                    
+                  ],),
+                ),
+                
+              ],),
+            ),
+            
+            
             ],),
           ),
       ),
