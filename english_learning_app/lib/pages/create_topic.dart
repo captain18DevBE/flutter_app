@@ -13,9 +13,18 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    //  appBar: AppBar(
-    //    title: const Text('Create Topic'),
-    //  ),
+     appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(' CREATE TOPIC',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            )),
+            elevation: 5,
+        backgroundColor: Colors.blue[700],
+        centerTitle: true,
+        shadowColor: Colors.black,
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(colors: <Color>[
@@ -44,7 +53,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                       color: Colors.white
                     )
                   ),
-                  labelText: 'TOPIC NAME',
+                  labelText: 'TOPIC NAME:',
                   labelStyle: TextStyle(color: Colors.white)
                 ),
               ),
@@ -71,7 +80,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                 onPressed: () {},
                 style: ButtonStyle(backgroundColor:  MaterialStateProperty.all<Color>(Colors.green)),
                 icon: const Icon(Icons.check, color: Colors.white,),
-                label: const Text('Done', style: TextStyle(color: Colors.white),),
+                label: const Text('Create', style: TextStyle(color: Colors.white),),
               ),
             ],
           ),
