@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class EditTopicPage extends StatefulWidget {
-  const EditTopicPage({
-    Key? key,
-  }) : super(key: key);
+
+  const EditTopicPage({Key? key}) : super(key: key);
 
   @override
   _EditTopicPageState createState() => _EditTopicPageState();
@@ -12,26 +12,61 @@ class EditTopicPage extends StatefulWidget {
 class _EditTopicPageState extends State<EditTopicPage> {
   final _topicNameController = TextEditingController();
   List<Map<String, String>> _wordDefinitions = [];
+  FlutterTts flutterTts = FlutterTts();
 
   @override
   void initState() {
     super.initState();
+    flutterTts.setLanguage("en-US");
+    _topicNameController.text = 'TOPIC NAME';
+    _wordDefinitions = [
+      {'word': 'Apple', 'definition': 'A fruit', 'isStarred': 'false'},
+      {'word': 'Banana', 'definition': 'Another fruit', 'isStarred': 'true'},
+      {'word': 'Carrot', 'definition': 'A vegetable', 'isStarred': 'false'},
+    ];
+    // Load word definitions if available
+  }
+
+  @override
+  void dispose() {
+    _topicNameController.dispose();
+    flutterTts.stop();
+    super.dispose();
+  }
+
+  Future<void> _speak(String text) async {
+    await flutterTts.speak(text);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //  appBar: AppBar(
-      //    title: const Text('Edit Topic'),
-      //  ),
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          'EDIT TOPIC',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        elevation: 5,
+        backgroundColor: Colors.blue[700],
+        centerTitle: true,
+        shadowColor: Colors.black,
+      ),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: <Color>[
-            Color(0xFF1976D2),
-            Color(0xFF42A5F5),
-            Color(0xFF90CAF9),
-            Colors.white
-          ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+          gradient: LinearGradient(
+            colors: <Color>[
+              Color(0xFF1976D2),
+              Color(0xFF42A5F5),
+              Color(0xFF90CAF9),
+              Colors.white,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -47,6 +82,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
                   IconButton(
                     onPressed: () => showTopicNameEditDialog(context),
                     icon: const Icon(Icons.edit),
+                    color: Colors.white,
                   ),
                 ],
               ),
@@ -63,9 +99,16 @@ class _EditTopicPageState extends State<EditTopicPage> {
                         word: wordDefinition['word']!,
                         definition: wordDefinition['definition']!,
                         onEdit: () => showWordEditDialog(context, index),
-                        onListen: () {},
-                        isStarred: false,
-                        onMarkStar: () {},
+                        onListen: () => _speak(wordDefinition['word']!),
+                        isStarred: wordDefinition['isStarred'] == 'true',
+                        onMarkStar: () {
+                          setState(() {
+                            _wordDefinitions[index]['isStarred'] =
+                                (wordDefinition['isStarred'] == 'true')
+                                    ? 'false'
+                                    : 'true';
+                          });
+                        },
                       );
                     }
                   },
@@ -73,7 +116,9 @@ class _EditTopicPageState extends State<EditTopicPage> {
               ),
               ElevatedButton.icon(
                 onPressed: () {},
-                style: ButtonStyle(backgroundColor:  MaterialStateProperty.all<Color>(Colors.green)),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                ),
                 icon: const Icon(Icons.check, color: Colors.white),
                 label: const Text('Save', style: TextStyle(color: Colors.white)),
               ),
@@ -86,22 +131,22 @@ class _EditTopicPageState extends State<EditTopicPage> {
 
   void addWordDefinition() {
     setState(() {
-      _wordDefinitions
-          .add({'word': 'English Word', 'definition': 'Vietnamese Word'});
+      _wordDefinitions.add({
+        'word': 'English Word',
+        'definition': 'Vietnamese Word',
+        'isStarred': 'false',
+      });
     });
   }
 
   void showTopicNameEditDialog(BuildContext context) {
-    final currentTopicName = _topicNameController.text;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Edit Topic Name'),
         content: TextField(
           controller: _topicNameController,
-          decoration: const InputDecoration(
-            labelText: 'Topic Name',
-          ),
+          decoration: const InputDecoration(labelText: 'Topic Name'),
         ),
         actions: [
           TextButton(
@@ -117,14 +162,13 @@ class _EditTopicPageState extends State<EditTopicPage> {
           ),
         ],
       ),
-    ).then((_) {
-      if (currentTopicName != _topicNameController.text) {}
-    });
+    );
   }
 
   void showWordEditDialog(BuildContext context, int index) {
-    final word = _wordDefinitions[index]['word']!;
-    final definition = _wordDefinitions[index]['definition']!;
+    final wordController = TextEditingController(text: _wordDefinitions[index]['word']!);
+    final definitionController = TextEditingController(text: _wordDefinitions[index]['definition']!);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -133,17 +177,13 @@ class _EditTopicPageState extends State<EditTopicPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: TextEditingController(text: word),
-              decoration: const InputDecoration(
-                labelText: 'ENGLISH',
-              ),
+              controller: wordController,
+              decoration: const InputDecoration(labelText: 'ENGLISH'),
             ),
             const SizedBox(height: 10),
             TextField(
-              controller: TextEditingController(text: definition),
-              decoration: const InputDecoration(
-                labelText: 'VIETNAMESE',
-              ),
+              controller: definitionController,
+              decoration: const InputDecoration(labelText: 'VIETNAMESE'),
             ),
           ],
         ),
@@ -154,7 +194,10 @@ class _EditTopicPageState extends State<EditTopicPage> {
           ),
           TextButton(
             onPressed: () {
-              setState(() {});
+              setState(() {
+                _wordDefinitions[index]['word'] = wordController.text;
+                _wordDefinitions[index]['definition'] = definitionController.text;
+              });
               Navigator.pop(context);
             },
             child: const Text('Save'),
@@ -226,7 +269,7 @@ class WordDefinitionRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      '\(' + definition + '\)',
+                      '($definition)',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ],
@@ -285,8 +328,8 @@ class AddWordDefinitionRow extends StatelessWidget {
             spreadRadius: 5,
             blurRadius: 7,
             offset: const Offset(0, 3),
-          )
-        ]
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(5.0),
@@ -298,4 +341,10 @@ class AddWordDefinitionRow extends StatelessWidget {
       ),
     );
   }
+}
+
+class Topic {
+  final String name;
+
+  const Topic({required this.name});
 }

@@ -7,20 +7,24 @@ class CreateTopicPage extends StatefulWidget {
 
 class _CreateTopicPageState extends State<CreateTopicPage> {
   final _topicNameController = TextEditingController();
-  List<Map<String, String>> _wordDefinitions =
-      [];
+  final _descriptionController = TextEditingController();
+  List<Map<String, String>> _wordDefinitions = [];
+  bool _isAddingDescription = false;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     appBar: AppBar(
+      appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(' CREATE TOPIC',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            )),
-            elevation: 5,
+        title: const Text(
+          'CREATE TOPIC',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        elevation: 5,
         backgroundColor: Colors.blue[700],
         centerTitle: true,
         shadowColor: Colors.black,
@@ -38,53 +42,110 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              TextField(
-                style: TextStyle(fontSize: 20),
-                cursorColor: Colors.white,
+              _buildTextField(
                 controller: _topicNameController,
-                decoration: const InputDecoration(
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.white
-                    )
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.white
-                    )
-                  ),
-                  labelText: 'TOPIC NAME:',
-                  labelStyle: TextStyle(color: Colors.white)
-                ),
+                labelText: 'TOPIC NAME',
               ),
               const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _wordDefinitions.length +
-                      1,
-                  itemBuilder: (context, index) {
-                    if (index == _wordDefinitions.length) {
-                      return AddWordDefinitionRow(onAdd: addWordDefinition);
-                    } else {
-                      final wordDefinition = _wordDefinitions[index];
-                      return WordDefinitionRow(
-                        word: wordDefinition['word']!,
-                        definition: wordDefinition['definition']!,
-                        onDelete: () => removeWordDefinition(index),
-                      );
-                    }
+              if (_isAddingDescription)
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        controller: _descriptionController,
+                        labelText: 'DESCRIPTION',
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          _isAddingDescription = false;
+                          _descriptionController.clear();
+                        });
+                      },
+                    )
+                  ],
+                )
+              else
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isAddingDescription = true;
+                    });
                   },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    'Add Description',
+                    style: TextStyle(color: Colors.blue),
+                  ),
                 ),
+              const SizedBox(height: 16),
+              Text(
+                'Words: ${_wordDefinitions.length}',
+                style: TextStyle(color: Colors.white),
               ),
+              const SizedBox(height: 16),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : Expanded(
+                      child: ListView.builder(
+                        itemCount: _wordDefinitions.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == _wordDefinitions.length) {
+                            return AddWordDefinitionRow(onAdd: addWordDefinition);
+                          } else {
+                            final wordDefinition = _wordDefinitions[index];
+                            return WordDefinitionRow(
+                              word: wordDefinition['word']!,
+                              definition: wordDefinition['definition']!,
+                              onDelete: () => removeWordDefinition(index),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    if (_wordDefinitions.length > 0)
               ElevatedButton.icon(
-                onPressed: () {},
-                style: ButtonStyle(backgroundColor:  MaterialStateProperty.all<Color>(Colors.green)),
-                icon: const Icon(Icons.check, color: Colors.white,),
-                label: const Text('Create', style: TextStyle(color: Colors.white),),
+                onPressed: _createTopic,
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.green)),
+                icon: const Icon(
+                  Icons.check,
+                  color: Colors.white,
+                ),
+                label: const Text(
+                  'Create',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  TextField _buildTextField({required TextEditingController controller, required String labelText}) {
+    return TextField(
+      style: TextStyle(fontSize: 20),
+      cursorColor: Colors.white,
+      controller: controller,
+      decoration: InputDecoration(
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        labelText: labelText,
+        labelStyle: TextStyle(color: Colors.white),
       ),
     );
   }
@@ -99,6 +160,30 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     setState(() {
       _wordDefinitions.removeAt(index);
     });
+    _showSnackbar('Removed word definition');
+  }
+
+  void _createTopic() {
+    // Simulate a loading state
+    setState(() {
+      _isLoading = true;
+    });
+
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        _isLoading = false;
+        Navigator.pop(context);
+        _showSnackbar('Topic created successfully!');
+      });
+    });
+  }
+
+  void _showSnackbar(String message) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    scaffoldMessenger.hideCurrentSnackBar();
+    scaffoldMessenger.showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 }
 
@@ -133,55 +218,53 @@ class WordDefinitionRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(left: 15, right: 15),
         child: IntrinsicHeight(
-          child:
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  TextField(
-                    controller: TextEditingController(text: word),
-                    decoration: const InputDecoration(
-                      labelStyle: TextStyle(fontSize: 12),
-                      labelText: 'ENGLISH',
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: TextField(
-                      controller: TextEditingController(text: definition),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: TextEditingController(text: word),
                       decoration: const InputDecoration(
                         labelStyle: TextStyle(fontSize: 12),
-                        labelText: 'VIETNAMESE',
+                        labelText: 'ENGLISH',
                       ),
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: TextField(
+                        controller: TextEditingController(text: definition),
+                        decoration: const InputDecoration(
+                          labelStyle: TextStyle(fontSize: 12),
+                          labelText: 'VIETNAMESE',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 5),
-            VerticalDivider(
-              indent: 10,
-              endIndent: 10,
-              color: Colors.grey,
-              thickness: 1,
-            ),
-            const SizedBox(width: 5),
-            Align(
-              alignment: Alignment.center,
-              child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.red),
-                onPressed: onDelete,
+              const SizedBox(width: 5),
+              VerticalDivider(
+                indent: 10,
+                endIndent: 10,
+                color: Colors.grey,
+                thickness: 1,
               ),
-            ),
-          ],
-        ),),
+              const SizedBox(width: 5),
+              Align(
+                alignment: Alignment.center,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.red),
+                  onPressed: onDelete,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
-
-
 
 class AddWordDefinitionRow extends StatelessWidget {
   final VoidCallback onAdd;
@@ -202,7 +285,7 @@ class AddWordDefinitionRow extends StatelessWidget {
             blurRadius: 7,
             offset: const Offset(0, 3),
           )
-        ]
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(5.0),
@@ -214,4 +297,8 @@ class AddWordDefinitionRow extends StatelessWidget {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(home: CreateTopicPage()));
 }

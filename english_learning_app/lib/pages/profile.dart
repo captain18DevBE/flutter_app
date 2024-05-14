@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -70,10 +72,69 @@ class _ProfilePageState extends State<ProfilePage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           const SizedBox(height: 15),
-          const CircleAvatar(
-            radius: 60,
-            backgroundImage: NetworkImage(
-                "https://placeimg.com/640/480/people"), //AVATAR
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: 60,
+                backgroundImage: NetworkImage(
+                  "https://placeimg.com/640/480/people",
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: FloatingActionButton(
+                  mini: true, // Set mini for a smaller button
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return
+                          SimpleDialog(
+                            title: Text('Choose an option'),
+                            children: <Widget>[
+                              SimpleDialogOption(
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  final pickedFile = await ImagePicker()
+                                      .pickImage(source: ImageSource.gallery);
+                                  // Handle the selected image file
+                                  if (pickedFile != null) {
+                                    print(
+                                        'Selected image from gallery: ${pickedFile.path}');
+                                  }
+                                },
+                                child: Text('Open device files'),
+                              ),
+                              SimpleDialogOption(
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  if (await Permission.camera
+                                      .request()
+                                      .isGranted) {
+                                    final pickedFile = await ImagePicker()
+                                        .pickImage(source: ImageSource.camera);
+                                    if (pickedFile != null) {
+                                      print(
+                                          'Captured image from camera: ${pickedFile.path}');
+                                    }
+                                  } else {
+                                    // Handle the case when permission is not granted
+                                    print(
+                                        'Permission to access camera is denied');
+                                  }
+                                },
+                                child: Text('Open camera app'),
+                              ),
+                            ],
+                          );
+                        });
+                  },
+                  child: const Icon(
+                      Icons.camera_alt_outlined), // Change avatar icon
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 5),
           premadeTextField(

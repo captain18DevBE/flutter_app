@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class CreateFolderPage extends StatefulWidget {
+class EditFolderPage extends StatefulWidget {
   @override
-  _CreateFolderPageState createState() => _CreateFolderPageState();
+  _EditFolderPageState createState() => _EditFolderPageState();
 }
 
-class _CreateFolderPageState extends State<CreateFolderPage> {
+class _EditFolderPageState extends State<EditFolderPage> {
   final _folderNameController = TextEditingController();
   final _descriptionController = TextEditingController();
   List<Topic> _existingTopics = [];
@@ -21,6 +21,7 @@ class _CreateFolderPageState extends State<CreateFolderPage> {
       Topic(name: 'Topic 2', wordCount: 20),
       Topic(name: 'Topic 3', wordCount: 30),
     ];
+    _selectedTopics.add(_existingTopics[1]);
   }
 
   @override
@@ -29,7 +30,7 @@ class _CreateFolderPageState extends State<CreateFolderPage> {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
-          'CREATE FOLDER',
+          'EDIT FOLDER',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -285,7 +286,6 @@ class _CreateFolderPageState extends State<CreateFolderPage> {
   }
 
   void _createFolder() {
-// Simulate a loading state
     setState(() {
       _isLoading = true;
     });

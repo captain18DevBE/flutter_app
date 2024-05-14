@@ -1,12 +1,14 @@
 import 'package:english_learning_app/pages/create_folder.dart';
 import 'package:english_learning_app/pages/create_topic.dart';
 import 'package:english_learning_app/pages/learning.dart';
+import 'package:english_learning_app/pages/library.dart';
 import 'package:english_learning_app/pages/profile.dart';
 import 'package:english_learning_app/pages/flashcard.dart';
 import 'package:english_learning_app/pages/quiz.dart';
 import 'package:english_learning_app/pages/signup.dart';
 import 'package:english_learning_app/pages/type.dart';
 import 'package:english_learning_app/pages/edit_topic.dart';
+import 'package:english_learning_app/pages/library.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,7 +27,7 @@ class _HomePageState extends State<HomePage> {
       Learning(),
       QuizPage(),
       HomePage(),
-      EditTopicPage(),
+      LibraryPage(),
       CreateFolderPage(),
     ];
 
@@ -41,7 +43,7 @@ class _HomePageState extends State<HomePage> {
           );
         }),
         title: Text(
-          "Leaning",
+          "English Learning App",
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -159,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                 child: const Icon(Icons.add, color: Colors.white),
               ),
             ),
-            label: ''
+            label: 'Create'
           ),
           const BottomNavigationBarItem(
               icon: Icon(Icons.my_library_books_outlined), label: 'Library'),
@@ -180,17 +182,19 @@ class _HomePageState extends State<HomePage> {
         return AlertDialog(
           title: const Text('Create'),
           content: Column(
-            mainAxisSize: MainAxisSize.min, // Avoid excessive padding
+            mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 title: const Text('Create Topic'),
                 onTap: () {
+                  Navigator.pop(context);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => CreateTopicPage()));
                 },
               ),
               ListTile(
                 title: const Text('Create Folder'),
                 onTap: () {
+                  Navigator.pop(context);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => CreateFolderPage()));
                 },
               ),
