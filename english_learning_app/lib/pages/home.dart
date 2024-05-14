@@ -1,6 +1,7 @@
 import 'package:english_learning_app/pages/create_folder.dart';
 import 'package:english_learning_app/pages/create_topic.dart';
 import 'package:english_learning_app/pages/learn_multiple_choise/multiple_test.dart';
+import 'package:english_learning_app/pages/main_page/explored_library.dart';
 import 'package:english_learning_app/pages/menu_topic/learning.dart';
 import 'package:english_learning_app/pages/profile.dart';
 import 'package:english_learning_app/pages/learn_flash_card/flashcard.dart';
@@ -23,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final List<Widget> _pages = [
       Learning(),
-      QuizPage(),
+      ExploredPage(),
       HomePage(),
       EditTopicPage(),
       CreateFolderPage(),
