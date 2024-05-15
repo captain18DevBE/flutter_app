@@ -1,5 +1,6 @@
 import 'package:english_learning_app/controllers/UserAuthController.dart';
 import 'package:english_learning_app/pages/folder/create_folder.dart';
+import 'package:english_learning_app/pages/main_page/home_library.dart';
 import 'package:english_learning_app/pages/main_page/library.dart';
 import 'package:english_learning_app/pages/learn_multiple_choise/multiple_test.dart';
 import 'package:english_learning_app/pages/main_page/login.dart';
@@ -49,7 +50,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> _pages = [
-      Learning(),
+      HomeLibrary(),
       ExploredPage(),
       HomePage(),
       LibraryPage(),

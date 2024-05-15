@@ -1,5 +1,7 @@
 
+import 'package:english_learning_app/pages/main_page/library.dart';
 import 'package:english_learning_app/pages/setup_root/all_constants.dart';
+import 'package:english_learning_app/pages/topics/edit_topic.dart';
 import 'package:flutter/material.dart';
 
 class ActionTopic extends StatelessWidget {
@@ -38,7 +40,8 @@ class ActionTopic extends StatelessWidget {
                 )
               ),
               onTap: () {
-
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => EditTopicPage()));
               },
             ),
             Container(
