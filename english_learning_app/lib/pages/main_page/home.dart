@@ -42,8 +42,6 @@ class _HomePageState extends State<HomePage> {
     _username = _currentUser?.displayName;
     _useremail = _currentUser?.email;
     _urlPhotoAvatar = _currentUser?.photoURL;
-
-    debugPrint("User name: " + _username!);
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:english_learning_app/pages/topics/settings_topic.dart';
 import 'package:flutter/material.dart';
 
 class CreateTopicPage extends StatefulWidget {
@@ -11,6 +12,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   List<Map<String, String>> _wordDefinitions = [];
   bool _isAddingDescription = false;
   bool _isLoading = false;
+  bool _isPublic = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,26 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
         backgroundColor: Colors.blue[700],
         centerTitle: true,
         shadowColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TopicSettingPage(
+                    isPublic: _isPublic,
+                    onSettingChanged: (isPublic) {
+                      setState(() {
+                        _isPublic = isPublic;
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -110,21 +132,21 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                         },
                       ),
                     ),
-                    if (_wordDefinitions.length > 0)
-              ElevatedButton.icon(
-                onPressed: _createTopic,
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.green)),
-                icon: const Icon(
-                  Icons.check,
-                  color: Colors.white,
+              if (_wordDefinitions.length > 0)
+                ElevatedButton.icon(
+                  onPressed: _createTopic,
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.green)),
+                  icon: const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                  ),
+                  label: const Text(
+                    'Create',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
-                label: const Text(
-                  'Create',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
             ],
           ),
         ),
@@ -164,7 +186,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   }
 
   void _createTopic() {
-    // Simulate a loading state
     setState(() {
       _isLoading = true;
     });
@@ -297,8 +318,4 @@ class AddWordDefinitionRow extends StatelessWidget {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(home: CreateTopicPage()));
 }
