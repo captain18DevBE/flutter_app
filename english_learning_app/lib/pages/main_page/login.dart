@@ -1,6 +1,6 @@
 import 'package:english_learning_app/controllers/UserAuthController.dart';
-import 'package:english_learning_app/pages/home.dart';
-import 'package:english_learning_app/pages/signup.dart';
+import 'package:english_learning_app/pages/main_page/home.dart';
+import 'package:english_learning_app/pages/main_page/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,16 +21,15 @@ class _LoginPageState extends State<LoginPage> {
 
   TextEditingController _emailSigInController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
-
+  TextEditingController _emailResetPassword = new TextEditingController();
 
   @override
   void dispose() {
     // TODO: implement dispose
+    super.dispose();
     _emailSigInController.dispose();
     _passwordController.dispose();
-
-    super.dispose();
-
+    _emailResetPassword.dispose();
   }
 
   void _signIn() async {
@@ -107,7 +106,6 @@ class _LoginPageState extends State<LoginPage> {
             child: TextButton(
               onPressed: () {
 
-
                 recoverDialogEmail();
               },
               style: TextButton.styleFrom(
@@ -120,14 +118,7 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: //_signIn,
-              
-               () {
-              //   String emailSignIn = _emailSigInController.text; 
-              //   String password = _passwordController.text;
-              //   cxc
-                 Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-               },
+              onPressed: _signIn,
               
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
@@ -267,6 +258,7 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(fontSize: 25),
           ),
           content: TextFormField(
+            controller: _emailResetPassword,
             cursorColor: Colors.blue,
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -295,10 +287,9 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  recoverDialogOtp();
-                },
+                onPressed: sentResetPasswordToEmail,
+                
+
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
@@ -548,4 +539,17 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
+  void sentResetPasswordToEmail() async {
+
+    String? email = _emailResetPassword.text;
+
+    if (email != null) {
+      await _userAuthController.sendPasswordResetEmail(email);
+
+      Navigator.pop(context);
+      recoverDialogOtp();
+    }
+  }
+
 }

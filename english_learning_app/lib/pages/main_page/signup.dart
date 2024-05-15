@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:english_learning_app/controllers/UserAuthController.dart';
 import 'package:english_learning_app/controllers/UserController.dart';
 import 'package:english_learning_app/models/Users.dart';
+import 'package:english_learning_app/pages/main_page/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -95,7 +96,7 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  void singUpValidate() {
+  void singUpValidate() async {
     String userName = _userNameController.text;
     String email = _emailSignUpController.text;
     String password = _passwordController.text;
@@ -106,9 +107,14 @@ class _SignUpPageState extends State<SignUpPage> {
     bool passwordValid = isPasswordValid(password);
 
     if (userNameValid && emailValid && passwordValid) {
-      Users data = new Users(email, userName);
+      final userId = await _userController.amountUserAccount() +1;
+      Users data = new Users(userId, email, userName);
       _userController.addUser(data);
       _userAuthController.signUpWithEmailPassword(email, password);
+
+
+      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
 
       debugPrint("Tran Le Duy" + userName + email + password + confirmPass);
     }

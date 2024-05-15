@@ -3,6 +3,8 @@ import 'package:english_learning_app/controllers/UserController.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -21,8 +23,24 @@ class _ProfilePageState extends State<ProfilePage> {
   bool isHidden = true;
   bool isHidden2 = true;
   bool isHidden3 = true;
-  String username = "John Doe";
-  String email = "johndoe@example.com";
+
+  String? _currentPass;
+
+  TextEditingController _currentPasswordController = new TextEditingController();
+  TextEditingController _newPasswordController = new TextEditingController();
+  TextEditingController _confirmNewPassController = new TextEditingController();
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmNewPassController.dispose();
+
+
+  }
 
   @override
   void initState() {
@@ -183,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                premadePasswordField(
+                                premadeConfirmPasswordField(
                                     Icon(
                                       Icons.lock_outline,
                                       color: Colors.grey[700],
@@ -195,10 +213,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    recoverDialogPassword();
-                                  },
+                                  onPressed: confirmChangePass,
+
                                   style: ElevatedButton.styleFrom(
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
@@ -235,8 +251,9 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  TextFormField premadePasswordField(Icon icon, String text) {
+  TextFormField premadeConfirmPasswordField(Icon icon, String text) {
     return TextFormField(
+      controller: _currentPasswordController,
       cursorColor: Colors.blue,
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -303,8 +320,9 @@ class _ProfilePageState extends State<ProfilePage> {
   void recoverDialogPassword() => showDialog(
       context: context,
       builder: (context) => StatefulBuilder(builder: (context, setState) {
-            TextFormField premadePasswordField2(Icon icon, String text) {
+            TextFormField premadeNewPasswordField(Icon icon, String text) {
               return TextFormField(
+                controller: _newPasswordController,
                 cursorColor: Colors.blue,
                 autofocus: true,
                 validator: (value) {
@@ -342,8 +360,9 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             }
 
-            TextFormField premadePasswordField3(Icon icon, String text) {
+            TextFormField premadeConfirmNewPasswordField(Icon icon, String text) {
               return TextFormField(
+                controller: _confirmNewPassController,
                 cursorColor: Colors.blue,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -388,14 +407,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  premadePasswordField2(
+                  premadeNewPasswordField(
                       Icon(
                         Icons.lock_outline,
                         color: Colors.grey[700],
                       ),
                       'Password'),
                   const SizedBox(height: 10),
-                  premadePasswordField3(
+                  premadeConfirmNewPasswordField(
                       Icon(
                         Icons.lock_outline,
                         color: Colors.grey[700],
@@ -407,9 +426,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    onPressed: changePassword,
+                  
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
@@ -422,6 +440,53 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             );
           }));
+
+  void confirmChangePass() async {
+    String? currentPass = _currentPasswordController.text;
+    String? email = await _currentUser?.email;
+    if (currentPass != null && email != null) {
+      debugPrint(email);
+      debugPrint(currentPass);
+      User? tmp = await _userAuthController.signInWithEmailPassword(email, currentPass);
+
+      if (tmp != null) {
+        Navigator.pop(context);
+        recoverDialogPassword();
+
+        setState(() {
+          _currentPass = currentPass;
+        });
+      } else {
+        Navigator.pop(context);
+        //Hiển thị thông báo mật khẩu không đúng
+
+      }
+    }
+  }
+
+  void changePassword() {
+    String? newPass = _newPasswordController.text;
+    String? repeatPass = _confirmNewPassController.text;
+
+    if (newPass!=null && repeatPass!=null) {
+      if (newPass==repeatPass && newPass!=_currentPass) {
+        _userAuthController.changedPassword(newPass);
+
+        setState(() {
+          _currentPass = newPass;
+        });
+
+        Navigator.pop(context);
+      } else if (newPass != repeatPass) {
+        Navigator.pop(context);
+        //Hien thi thong bao
+      }
+      else if (newPass == _currentPass) {
+        Navigator.pop(context);
+        //Hien thi thong bao
+      }
+    }
+  }
 }
 
 //add change avatar

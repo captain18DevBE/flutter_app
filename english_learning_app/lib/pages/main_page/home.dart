@@ -1,13 +1,19 @@
-import 'package:english_learning_app/pages/create_folder.dart';
-import 'package:english_learning_app/pages/create_topic.dart';
+import 'package:english_learning_app/controllers/UserAuthController.dart';
+import 'package:english_learning_app/pages/folder/create_folder.dart';
+import 'package:english_learning_app/pages/main_page/library.dart';
 import 'package:english_learning_app/pages/learn_multiple_choise/multiple_test.dart';
+import 'package:english_learning_app/pages/main_page/login.dart';
 import 'package:english_learning_app/pages/main_page/explored_library.dart';
 import 'package:english_learning_app/pages/menu_topic/learning.dart';
-import 'package:english_learning_app/pages/profile.dart';
+import 'package:english_learning_app/pages/main_page/profile.dart';
 import 'package:english_learning_app/pages/learn_flash_card/flashcard.dart';
-import 'package:english_learning_app/pages/signup.dart';
+import 'package:english_learning_app/pages/main_page/signup.dart';
+import 'package:english_learning_app/pages/topics/create_topic.dart';
 import 'package:english_learning_app/pages/type.dart';
-import 'package:english_learning_app/pages/edit_topic.dart';
+import 'package:english_learning_app/pages/topics/edit_topic.dart';
+import 'package:english_learning_app/pages/main_page/library.dart';
+import 'package:english_learning_app/pages/view_settings/main_setting.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,7 +24,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  UserAuthController _userAuthController = new UserAuthController();
+  User? _currentUser;
+  String? _username;
+  String? _useremail;
+  String? _urlPhotoAvatar;
+
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _currentUser = _userAuthController.getCurrentUser()!;
+
+    _username = _currentUser?.displayName;
+    _useremail = _currentUser?.email;
+    _urlPhotoAvatar = _currentUser?.photoURL;
+
+    debugPrint("User name: " + _username!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +52,8 @@ class _HomePageState extends State<HomePage> {
       Learning(),
       ExploredPage(),
       HomePage(),
-      EditTopicPage(),
-      CreateFolderPage(),
+      LibraryPage(),
+      SettingPage(),
     ];
 
     return Scaffold(
@@ -42,7 +68,8 @@ class _HomePageState extends State<HomePage> {
           );
         }),
         title: Text(
-          "Leaning",
+          // "English Learning App",
+          headingPage(),
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -63,17 +90,17 @@ class _HomePageState extends State<HomePage> {
           ),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            const DrawerHeader(
+              DrawerHeader(
                 decoration: BoxDecoration(color: Colors.transparent),
                 child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // User Avatar
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 40,
                         backgroundImage: NetworkImage(
-                            "https://placeimg.com/640/480/people"), // Replace with user's avatar URL
-                      ),
+                          _urlPhotoAvatar ?? "https://drive.google.com/file/d/1S_t4qHw4dgLMmJHEfcFcPkXDX2fpwYMF/view?usp=sharing"),
+                        ),
                       SizedBox(
                         width: 10,
                       ),
@@ -81,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'John Doe',
+                            _username ?? 'TLDuyk2',
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -89,9 +116,10 @@ class _HomePageState extends State<HomePage> {
                           ),
                           // Email
                           Text(
-                            'johndoe@example.com',
+                            _useremail ?? 'tlduy@gmail.com',
                             style: const TextStyle(
-                                color: Colors.white, fontSize: 15),
+                            color: Colors.white, fontSize: 15
+                            ),
                           )
                         ],
                       )
@@ -113,18 +141,16 @@ class _HomePageState extends State<HomePage> {
                             builder: (context) => const ProfilePage())),
                   ),
                   ListTile(
-                    title: Text('Create Subject'),
+                    title: Text('Your Library'),
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const ProfilePage())),
                   ),
                   ListTile(
-                    title: Text('View Subjects Created'),
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ProfilePage())),
+                    title: Text('Log out'),
+                    onTap: logOut 
+                      
                   ),
                 ],
               ),
@@ -160,7 +186,7 @@ class _HomePageState extends State<HomePage> {
                 child: const Icon(Icons.add, color: Colors.white),
               ),
             ),
-            label: ''
+            label: 'Create'
           ),
           const BottomNavigationBarItem(
               icon: Icon(Icons.my_library_books_outlined), label: 'Library'),
@@ -181,17 +207,19 @@ class _HomePageState extends State<HomePage> {
         return AlertDialog(
           title: const Text('Create'),
           content: Column(
-            mainAxisSize: MainAxisSize.min, // Avoid excessive padding
+            mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 title: const Text('Create Topic'),
                 onTap: () {
+                  Navigator.pop(context);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => CreateTopicPage()));
                 },
               ),
               ListTile(
                 title: const Text('Create Folder'),
                 onTap: () {
+                  Navigator.pop(context);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => CreateFolderPage()));
                 },
               ),
@@ -201,4 +229,26 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+
+  void logOut() {
+    _userAuthController.signOut();
+    Navigator.push(context, MaterialPageRoute( builder: (context) => const LoginPage()));
+  }
+
+  String headingPage() {
+    String heading = "English App";
+
+    if(_selectedIndex == 0) {
+      heading = "Home";
+    } else if (_selectedIndex == 1) {
+      heading = "Explored";
+    } else if (_selectedIndex == 3) {
+      heading = "Library";
+    } else {
+      heading = "Settings";
+    }
+    return heading;
+  }
 }
+
+

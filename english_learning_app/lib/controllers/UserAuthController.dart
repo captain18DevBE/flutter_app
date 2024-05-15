@@ -29,7 +29,7 @@ class UserAuthController {
       
       return credential.user;
     } on FirebaseAuthException catch (e) {
-      print("Some error SingUp user");
+      print("Some error SingIn user");
     }
 
     return null;
@@ -41,19 +41,13 @@ class UserAuthController {
   }
 
 
-  Future<void> sendPasswordResetEmail() async {
-    User? user = _auth.currentUser;
-
-    if (user != null) {
-      String email = user.email ?? "tranleduy08082002@gmail.com";
-      try {
-        await _auth.sendPasswordResetEmail(email: email);
-      } on FirebaseException catch(e) {
-        print("Some error SingUp user");
-      }
-    } else {
-      print("Some error SingIn user");
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseException catch(e) {
+      print("Some error SingUp user");
     }
+
   }
 
   Future<User?> updateUserProfile(String displayName, String urlPhoto) async {

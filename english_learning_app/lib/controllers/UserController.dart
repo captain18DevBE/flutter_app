@@ -12,15 +12,19 @@ class UserController {
   FirebaseAuth _auth = FirebaseAuth.instance;
   final _storageRef = FirebaseStorage.instance.ref();
 
+
+
   Future<void> addUser(Users data) async {
     final user = <String, dynamic> {
+      "_id" : data.id,
       "email" : data.email,
       "userName" : data.userName,
       "phoneNumber" : data.phoneNumber,
       "isTeacher" : data.isTeacher,
       "createAt" : data.createAt
     };
-
+      User? current = _auth.currentUser;
+      await current?.updateDisplayName(data.userName);
     db.collection("Users").add(user).then((value) => print("Added Data with ID: ${value.id}"));
   }
 
@@ -42,5 +46,14 @@ class UserController {
     } 
 
     return urlDownLoad;
+  }
+
+  Future<int> amountUserAccount() async {
+
+    final QuerySnapshot result = await db.collection("Users").get();
+
+    final List<DocumentSnapshot> documents = result.docs;
+
+    return documents.length;
   }
 }
