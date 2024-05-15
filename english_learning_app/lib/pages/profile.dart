@@ -1,4 +1,9 @@
+import 'package:english_learning_app/controllers/UserAuthController.dart';
+import 'package:english_learning_app/controllers/UserController.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -8,11 +13,27 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  UserAuthController _userAuthController = new UserAuthController();
+  UserController _userController = new UserController();
+  User? _currentUser;
+  String? _urlAvatarImg;
+
   bool isHidden = true;
   bool isHidden2 = true;
   bool isHidden3 = true;
   String username = "John Doe";
   String email = "johndoe@example.com";
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _currentUser = _userAuthController.getCurrentUser();
+    _urlAvatarImg = _currentUser?.photoURL;
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +91,33 @@ class _ProfilePageState extends State<ProfilePage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           const SizedBox(height: 15),
-          const CircleAvatar(
-            radius: 60,
-            backgroundImage: NetworkImage(
-                "https://placeimg.com/640/480/people"), //AVATAR
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: 60,
+                backgroundImage: NetworkImage(
+                  _urlAvatarImg ?? "assets/demo.jpg"
+                  ), //AVATAR
+              ),
+              Positioned(
+                bottom: -14,
+                right: -10,
+                child: IconButton(
+                  icon: Icon(Icons.camera_alt, color: Colors.grey,),
+                  onPressed: () async {
+                    final file = await ImagePicker().pickImage(source: ImageSource.gallery);
+                    if (file == null) {
+                      return;
+                    }
+                    String fileName = DateTime.now().microsecondsSinceEpoch.toString();
+                    String urlDownload = await _userController.upUserAvatar(fileName, file.path);
+                    setState(() {
+                      _urlAvatarImg = urlDownload;
+                    });
+                  },
+                  )
+              )
+            ]
           ),
           const SizedBox(height: 5),
           premadeTextField(

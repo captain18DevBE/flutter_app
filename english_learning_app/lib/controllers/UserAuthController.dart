@@ -60,13 +60,15 @@ class UserAuthController {
     User? user = _auth.currentUser;
 
     if (user != null) {
-      await user?.updateDisplayName(displayName);
-      await user?.updatePhotoURL(urlPhoto);
-
+      if (displayName != null) {
+        await user?.updateDisplayName(displayName);
+      }
+      if (urlPhoto != null) {
+        await user?.updatePhotoURL(urlPhoto);
+      }
       return user;
     }
     print('Have a problem on event user profile date changed');
-
     return null;
   }
 

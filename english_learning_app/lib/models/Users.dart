@@ -5,6 +5,7 @@ class Users {
   String userName;
   String? phoneNumber;
   bool? isTeacher;
+  String? imgUrl;
 
   String createAt = DateFormat("dd-MM-yyyy").format(DateTime.now());
 
