@@ -1,4 +1,5 @@
 import 'package:english_learning_app/pages/folder/edit_folder.dart';
+import 'package:english_learning_app/pages/menu_topic/learning.dart';
 import 'package:english_learning_app/pages/topics/edit_topic.dart';
 import 'package:flutter/material.dart';
 
@@ -95,9 +96,10 @@ class _LibraryPageState extends State<LibraryPage> {
             title: Text(topic.name),
             subtitle: Text('Words: ${topic.wordCount}'),
             onTap: () {
+              Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditTopicPage()),
+                MaterialPageRoute(builder: (context) => Learning()),
               );
             },
           ),
