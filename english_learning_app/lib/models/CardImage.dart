@@ -1,6 +1,0 @@
-
-class CardImage {
-  String? urlPhoto;
-
-  
-}

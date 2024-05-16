@@ -7,16 +7,16 @@ class LibraryController {
   FirebaseFirestore db = FirebaseFirestore.instance;
 
   //Add Library same create new Account
-  Future<void> addLibrary(Library data) async {
-    final library = <String, dynamic> {
-      "userEmailOwner" : data.userEmailOwner,
-      "createAt" : data.createAt,
-      "lstTopics" : data.lstTopics
-    };
+  // Future<void> addLibrary(Library data) async {
+  //   final library = <String, dynamic> {
+  //     "userEmailOwner" : data.userEmailOwner,
+  //     "createAt" : data.createAt,
+  //     "lstTopics" : data.lstTopics
+  //   };
 
-    await db.collection("Libraries").add(library).then((DocumentReference doc) =>
-    print('Libraries added with ID: ${doc.id}'));
-  }
+  //   await db.collection("Libraries").add(library).then((DocumentReference doc) =>
+  //   print('Libraries added with ID: ${doc.id}'));
+  // }
 
   //Read Library By Email
   

@@ -3,32 +3,13 @@ import 'package:intl/intl.dart';
 
 
 class Topic {
-  String createByUserEmail;
+  int id;
+  String createBy;
   String createAt = DateFormat("dd-MM-yyyy").format(DateTime.now());
-  String topicName;
-  List<Cards> lstCard;
+  String title;
+  bool isPublic = false;
+  List<int> cards;
   String? description;
 
-
-  Topic(this.createByUserEmail, this.topicName, this.lstCard, {this.description});
-
-  set setTopicName(String data) {
-    this.topicName = data;
-  }
-
-  String get getTopicName {
-    return this.topicName;
-  }
-
-  set setDescription(String des) {
-    this.description = des;
-  }
-
-  String? get getDescription {
-    return this.description;
-  }
-
-  List<Cards> get getLstCards {
-    return this.lstCard;
-  }
+  Topic({required this.id, required this.createBy, required this.title, required this.cards, this.description});
 }
