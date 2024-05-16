@@ -28,16 +28,22 @@ class CardsController {
   }
 
   //Update card by id
-  Future<void> updateCardById(int cardId, String term, String mean, String urlPhoto) async {
+  Future<void> updateCardById(Cards data) async {
     return _cardsRef
-      .doc(cardId.toString())
+      .doc(data.id.toString())
       .update({
-        'term' : term,
-        'mean' : mean,
-        'urlPhoto' : urlPhoto
+        'term' : data.term,
+        'mean' : data.mean,
+        'urlPhoto' : data.urlPhoto
       })
-      .then((value) => print("Card updated"))
-      .catchError((error) => print("Failed to update card: $error"));
+      .then((value) {
+        print("Card updated");
+        return Future.value();
+      })
+      .catchError((error) {
+        print("Failed to update card: $error");
+        return Future.error(error);
+      });
   }
 
 
@@ -47,8 +53,14 @@ class CardsController {
     return _cardsRef
       .doc(cardId.toString())
       .delete()
-      .then((value) => print("Card deleted"))
-      .catchError((error) => print("Failed to delete card: $error"));
+      .then((value) {
+        print("Card deleted");
+        return Future.value();
+      })
+      .catchError((error) {
+        print("Failed to delete card: $error");
+        return Future.error(error);
+      });
   }
 
   //Read Card by Id

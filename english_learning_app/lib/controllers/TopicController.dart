@@ -12,6 +12,7 @@ class TopicController {
   //Add Topic
   Future<void> addTopic(Topic data) async {
     final topic = <String, dynamic> {
+      'id' : data.id,
       'title' : data.createBy,
       'description' : data.description,
       'create_by' : data.createBy,
@@ -74,8 +75,8 @@ class TopicController {
   Future<QuerySnapshot<Object?>> readTopicByEmailUserOwner(String email) async {
     try {
       final querySnapshot = await _topicRef
-                              .where('email', isEqualTo: email)
-                              .get();
+        .where('create_by', isEqualTo: email)
+        .get();
       return Future.value(querySnapshot);
       // return querySnapshot;
     } on FirebaseException catch (error) {
