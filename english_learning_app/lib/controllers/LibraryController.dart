@@ -98,4 +98,19 @@ class LibraryController {
       .catchError((error) => print("Failed to update library: $error"));
   }
 
+  //Delete Folder
+  Future<void> deleteFolder(int folderId) async {
+
+    return await _libraryRef
+      .doc(folderId.toString())
+      .delete()
+      .then((value) {
+        print("Folder deleted");
+        return Future.value();
+        }) 
+      .catchError((error) {
+        print("Failed to delete folder: $error");
+        return Future.error(error);
+      }); 
+  }
 }
