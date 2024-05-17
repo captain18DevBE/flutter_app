@@ -7,16 +7,23 @@ class PersonalStarCardsController {
   FirebaseFirestore db = FirebaseFirestore.instance;
   final CollectionReference _personalStarCardRef = FirebaseFirestore.instance.collection("Personal_Star_Cards");
 
+  Future<int> amountPersonalStarCard() async {
+    final QuerySnapshot result = await _personalStarCardRef.get();
+    final List<DocumentSnapshot> documents = result.docs;
+
+    return documents.length;
+  }
+
   // Add Personal Star Card Same create new Account
   Future<void> addPersonalStarCards(PersonalStarCards data) async {
-
+    int starCardId = await amountPersonalStarCard() + 1;
     Map<String, dynamic> starCards = {
-      "id" : data.id,
+      "id" : starCardId,
       "create_by" : data.createBy,
       'cards' : data.lstStarCards
     };
 
-    return _personalStarCardRef.doc(data.id.toString())
+    return _personalStarCardRef.doc(starCardId.toString())
       .set(starCards)
       .then((value) {
         print("Personal Star'Card added");
@@ -46,6 +53,7 @@ class PersonalStarCardsController {
   }
 
   // Add Field to Map<StarCard>
+  
 
   // Read Personal Star Card by email User
   Future<QuerySnapshot<Object?>> readPersonalStarCardByEmail(String email) async {

@@ -9,10 +9,18 @@ class TopicController {
   FirebaseFirestore db = FirebaseFirestore.instance;
   final CollectionReference _topicRef = FirebaseFirestore.instance.collection("Topics");
 
+  Future<int> amountTopics() async {
+    final QuerySnapshot result = await _topicRef.get();
+    final List<DocumentSnapshot> documents = result.docs;
+
+    return documents.length;
+  }
+
   //Add Topic
   Future<void> addTopic(Topic data) async {
+    int topicId = await amountTopics() + 1;
     final topic = <String, dynamic> {
-      'id' : data.id,
+      'id' : topicId,
       'title' : data.createBy,
       'description' : data.description,
       'create_by' : data.createBy,
@@ -22,7 +30,7 @@ class TopicController {
     };
 
     await db.collection("Topics")
-      .doc(data.id.toString())
+      .doc(topicId.toString())
       .set(topic)
       .then((value) => print("Topic added"))
       .catchError((error) => print("Failed to add topic: $error"));
@@ -41,8 +49,14 @@ class TopicController {
     return _topicRef
       .doc(data.id.toString())
       .update(topic)
-      .then((value) => print("Topic updated"))
-      .catchError((error) => print("Failed to update topic: $error"));
+      .then((value) {
+        print("Topic updated");
+        return Future.value();
+        }) 
+      .catchError((error) {
+        print("Failed to update topic: $error");
+        return Future.error(error);
+      }); 
   }
 
   Future<void> updateTopic(Topic topic) async {
@@ -57,8 +71,14 @@ class TopicController {
   };
   return _topicRef.doc(topic.id.toString())
     .update(data)
-    .then((value) => print("Topic updated"))
-    .catchError((error) => print("Failed to update topic: $error"));
+      .then((value) {
+        print("Topic updated");
+        return Future.value();
+        }) 
+      .catchError((error) {
+        print("Failed to update topic: $error");
+        return Future.error(error);
+      }); 
 }
 
 
@@ -68,8 +88,14 @@ class TopicController {
     return _topicRef
       .doc(topicId.toString())
       .delete()
-      .then((value) => print("Topic deleted"))
-      .catchError((error) => print("Failed to delete topic: $error"));
+      .then((value) {
+        print("Topic deleted");
+        return Future.value();
+        }) 
+      .catchError((error) {
+        print("Failed to delete topic: $error");
+        return Future.error(error);
+      }); 
   }
 
   //Read topic by id
@@ -77,15 +103,12 @@ class TopicController {
     try {
       final docSnapshot = await _topicRef.doc(topicId.toString())
         .get();
-
         return Future.value(docSnapshot);
         //return docSnapshot;
     } on FirebaseException catch (error) {
       print('Failed to read topic: $error');
       return Future.error(error);
-
     }
-    
   }
 
   //Read topic by email

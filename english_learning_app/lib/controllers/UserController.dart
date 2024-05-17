@@ -12,7 +12,7 @@ class UserController {
   FirebaseAuth _auth = FirebaseAuth.instance;
   final _storageRef = FirebaseStorage.instance.ref();
 
-
+  
 
   Future<void> addUser(Users data) async {
     final user = <String, dynamic> {

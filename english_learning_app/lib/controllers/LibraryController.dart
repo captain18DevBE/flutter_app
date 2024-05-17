@@ -7,19 +7,34 @@ class LibraryController {
   FirebaseFirestore db = FirebaseFirestore.instance;
   final CollectionReference _libraryRef = FirebaseFirestore.instance.collection("Libraries");
 
+  Future<int> amountLibrary() async {
+    final QuerySnapshot result = await _libraryRef.get();
+    final List<DocumentSnapshot> documents = result.docs;
+
+    return documents.length; 
+  }
 
   Future<void> addLibrary(Library data) async {
+    int libraryId = await amountLibrary() + 1;
     final library = <String, dynamic> {
-      'id' : data.id,
+      'id' : libraryId,
       'title' : data.title,
       'description' : data.description,
       "create_by" : data.createBy,
       "createAt" : data.createAt,
       "topics" : data.topics
     };
-
-    await db.collection("Libraries").add(library).then((DocumentReference doc) =>
-    print('Libraries added with ID: ${doc.id}'));
+    
+    return _libraryRef.doc(libraryId.toString())
+      .set(library)
+      .then((value) {
+        print("Library added");
+        return Future.value();
+      })
+      .catchError((error) {
+        print("Failed to add library");
+        return Future.error(error);
+      });
   }
 
   //Read library by id

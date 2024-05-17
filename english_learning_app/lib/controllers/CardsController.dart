@@ -9,10 +9,19 @@ class CardsController {
   final _storageRef = FirebaseStorage.instance.ref();
   final CollectionReference _cardsRef = FirebaseFirestore.instance.collection("Cards");
 
+  //Get id card
+  Future<int> amountCards() async {
+    final QuerySnapshot result = await _cardsRef.get();
+    final List<DocumentSnapshot> documents = result.docs;
+
+    return documents.length;
+  }
+
   //Add new Card
   Future<void> addCard(Cards card) async {
+    int cardId = await amountCards() + 1; 
     Map<String, dynamic> data = {
-      "id" : card.id,
+      "id" : cardId,
       "topic_id" : card.topicId,
       "create_by" : card.createByUserEmail,
       "create_at" : card.createAt,
@@ -20,7 +29,7 @@ class CardsController {
       "mean" : card.mean,
       "urlPhoto" : card.urlPhoto
     };
-    return _cardsRef.doc(card.id.toString())
+    return _cardsRef.doc(cardId.toString())
       .set(data)
       
       .then((value) => print("Card added"))
