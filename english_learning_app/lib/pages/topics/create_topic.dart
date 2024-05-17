@@ -1,5 +1,15 @@
 import 'package:english_learning_app/pages/topics/settings_topic.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:english_learning_app/controllers/TopicController.dart';
+import 'package:english_learning_app/controllers/CardsController.dart';
+import 'package:english_learning_app/controllers/UserController.dart';
+import 'package:english_learning_app/models/Topic.dart';
+import 'package:english_learning_app/models/Cards.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class CreateTopicPage extends StatefulWidget {
   @override
@@ -13,6 +23,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   bool _isAddingDescription = false;
   bool _isLoading = false;
   bool _isPublic = false;
+  final TopicController _topicController = TopicController();
+  final CardsController _cardsController = CardsController();
+  final UserController _userController = UserController();
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +61,10 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                 ),
               );
             },
+          ),
+          IconButton(
+            icon: Icon(Icons.upload_file),
+            onPressed: _importCSV,
           ),
         ],
       ),
@@ -120,13 +137,21 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
                         itemCount: _wordDefinitions.length + 1,
                         itemBuilder: (context, index) {
                           if (index == _wordDefinitions.length) {
-                            return AddWordDefinitionRow(onAdd: addWordDefinition);
+                            return AddWordDefinitionRow(
+                                onAdd: addWordDefinition);
                           } else {
                             final wordDefinition = _wordDefinitions[index];
                             return WordDefinitionRow(
-                              word: wordDefinition['word']!,
-                              definition: wordDefinition['definition']!,
+                              wordDefinition: wordDefinition,
                               onDelete: () => removeWordDefinition(index),
+                              onUpdate: (word, definition) {
+                                setState(() {
+                                  _wordDefinitions[index] = {
+                                    'word': word,
+                                    'definition': definition
+                                  };
+                                });
+                              },
                             );
                           }
                         },
@@ -154,7 +179,8 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     );
   }
 
-  TextField _buildTextField({required TextEditingController controller, required String labelText}) {
+  TextField _buildTextField(
+      {required TextEditingController controller, required String labelText}) {
     return TextField(
       style: TextStyle(fontSize: 20),
       cursorColor: Colors.white,
@@ -185,17 +211,56 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     _showSnackbar('Removed word definition');
   }
 
-  void _createTopic() {
+  void _createTopic() async {
     setState(() {
       _isLoading = true;
     });
 
-    Future.delayed(Duration(seconds: 2), () {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      _showSnackbar('Error: No logged in user');
       setState(() {
         _isLoading = false;
-        Navigator.pop(context);
-        _showSnackbar('Topic created successfully!');
       });
+      return;
+    }
+    String userEmail = currentUser.email!;
+
+    //id random with current time
+    Topic newTopic = Topic(
+      id: DateTime.now().millisecondsSinceEpoch,
+      title: _topicNameController.text,
+      description: _descriptionController.text,
+      createBy: userEmail,
+      cards: [],
+    );
+
+    await _topicController.addTopic(newTopic);
+
+    List<int> cardIds = [];
+    for (var wordDefinition in _wordDefinitions) {
+      int cardId = DateTime.now().millisecondsSinceEpoch + cardIds.length;
+      Cards newCard = Cards(
+        id: cardId,
+        topicId: newTopic.id,
+        createByUserEmail: userEmail,
+        term: wordDefinition['word']!,
+        mean: wordDefinition['definition']!,
+        urlPhoto:
+            '', //picture url
+      );
+      await _cardsController.addCard(newCard);
+      cardIds.add(cardId);
+    }
+
+    //update card lists
+    newTopic.cards = cardIds;
+    await _topicController.updateTopic(newTopic);
+
+    setState(() {
+      _isLoading = false;
+      Navigator.pop(context);
+      _showSnackbar('Topic and cards created successfully!');
     });
   }
 
@@ -206,19 +271,72 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
       SnackBar(content: Text(message)),
     );
   }
+
+  Future<void> _importCSV() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      File file = File(result.files.single.path!);
+      List<String> lines = await file.readAsLines();
+      List<Map<String, String>> importedWords = [];
+
+      for (String line in lines) {
+        List<String> values = line.split(',');
+        if (values.length == 2) {
+          importedWords
+              .add({'word': values[0].trim(), 'definition': values[1].trim()});
+        }
+      }
+
+      setState(() {
+        _wordDefinitions.addAll(importedWords);
+      });
+
+      _showSnackbar('Imported ${importedWords.length} words successfully!');
+    } else {
+      _showSnackbar('File import cancelled');
+    }
+  }
 }
 
-class WordDefinitionRow extends StatelessWidget {
-  final String word;
-  final String definition;
+class WordDefinitionRow extends StatefulWidget {
+  final Map<String, String> wordDefinition;
   final VoidCallback onDelete;
+  final Function(String, String) onUpdate;
 
   const WordDefinitionRow({
     Key? key,
-    required this.word,
-    required this.definition,
+    required this.wordDefinition,
     required this.onDelete,
+    required this.onUpdate,
   }) : super(key: key);
+
+  @override
+  _WordDefinitionRowState createState() => _WordDefinitionRowState();
+}
+
+class _WordDefinitionRowState extends State<WordDefinitionRow> {
+  late TextEditingController _wordController;
+  late TextEditingController _definitionController;
+
+  @override
+  void initState() {
+    super.initState();
+    _wordController =
+        TextEditingController(text: widget.wordDefinition['word']);
+    _definitionController =
+        TextEditingController(text: widget.wordDefinition['definition']);
+  }
+
+  @override
+  void dispose() {
+    _wordController.dispose();
+    _definitionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -245,7 +363,9 @@ class WordDefinitionRow extends StatelessWidget {
                 child: Column(
                   children: [
                     TextField(
-                      controller: TextEditingController(text: word),
+                      controller: _wordController,
+                      onChanged: (value) =>
+                          widget.onUpdate(value, _definitionController.text),
                       decoration: const InputDecoration(
                         labelStyle: TextStyle(fontSize: 12),
                         labelText: 'ENGLISH',
@@ -254,7 +374,9 @@ class WordDefinitionRow extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 20),
                       child: TextField(
-                        controller: TextEditingController(text: definition),
+                        controller: _definitionController,
+                        onChanged: (value) =>
+                            widget.onUpdate(_wordController.text, value),
                         decoration: const InputDecoration(
                           labelStyle: TextStyle(fontSize: 12),
                           labelText: 'VIETNAMESE',
@@ -276,7 +398,7 @@ class WordDefinitionRow extends StatelessWidget {
                 alignment: Alignment.center,
                 child: IconButton(
                   icon: const Icon(Icons.close, color: Colors.red),
-                  onPressed: onDelete,
+                  onPressed: widget.onDelete,
                 ),
               ),
             ],

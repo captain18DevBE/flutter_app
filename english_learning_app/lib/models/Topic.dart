@@ -11,5 +11,5 @@ class Topic {
   List<int> cards;
   String? description;
 
-  Topic({required this.id, required this.createBy, required this.title, required this.cards, this.description});
+  Topic({required this.id, required this.createBy, required this.title, required this.cards, this.description,});
 }
