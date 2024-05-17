@@ -1,4 +1,3 @@
-//import 'dart:html';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_learning_app/models/Topic.dart';
@@ -60,17 +59,17 @@ class TopicController {
   }
 
   Future<void> updateTopic(Topic topic) async {
-  Map<String, dynamic> data = {
-    "id": topic.id,
-    "title": topic.title,
-    "description": topic.description,
-    "create_by": topic.createBy,
-    "create_at": topic.createAt,
-    "is_public": topic.isPublic,
-    "cards": topic.cards,
-  };
-  return _topicRef.doc(topic.id.toString())
-    .update(data)
+    Map<String, dynamic> data = {
+      "id": topic.id,
+      "title": topic.title,
+      "description": topic.description,
+      "create_by": topic.createBy,
+      "create_at": topic.createAt,
+      "is_public": topic.isPublic,
+      "cards": topic.cards,
+    };
+    return _topicRef.doc(topic.id.toString())
+      .update(data)
       .then((value) {
         print("Topic updated");
         return Future.value();
@@ -78,14 +77,14 @@ class TopicController {
       .catchError((error) {
         print("Failed to update topic: $error");
         return Future.error(error);
-      }); 
-}
+    }); 
+  }
 
 
   //Delete topic
   Future<void> deleteTopic(int topicId) async {
 
-    return _topicRef
+    return await _topicRef
       .doc(topicId.toString())
       .delete()
       .then((value) {
@@ -123,6 +122,20 @@ class TopicController {
       print('Error reading topics: $error');
       return Future.error(error);
     } 
+  }
+
+  //Read topic is public
+  Future<QuerySnapshot<Object?>> readTopicPublic() async {
+    try {
+      final querySnapshot = await _topicRef
+        .where('is_public', isEqualTo: true)
+        .get();
+      
+      return Future.value(querySnapshot);
+    } on FirebaseException catch (error) {
+      print('Error reading topics: $error');
+      return Future.error(error);
+    }
   }
 
 }

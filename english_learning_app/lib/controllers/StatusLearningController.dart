@@ -69,5 +69,20 @@ class StatusLearningController {
       return Future.error(error);
     }
 
-  } 
+  }
+
+  Future<void> deleteStatusLearning(statusId) async {
+
+    return await _statusLearningRef
+      .doc(statusId.toString())
+      .delete()
+      .then((value) {
+        print("Status learning deleted");
+        return Future.value();
+        }) 
+      .catchError((error) {
+        print("Failed to delete status learning: $error");
+        return Future.error(error);
+      }); 
+  }
 }
