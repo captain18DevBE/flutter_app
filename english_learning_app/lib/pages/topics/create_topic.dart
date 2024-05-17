@@ -226,9 +226,9 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     }
     String userEmail = currentUser.email!;
 
-    //id random with current time
+    int topicId = await _topicController.amountTopics() + 1;
     Topic newTopic = Topic(
-      id: DateTime.now().millisecondsSinceEpoch,
+      id: topicId,
       title: _topicNameController.text,
       description: _descriptionController.text,
       createBy: userEmail,
@@ -239,7 +239,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
 
     List<int> cardIds = [];
     for (var wordDefinition in _wordDefinitions) {
-      int cardId = DateTime.now().millisecondsSinceEpoch + cardIds.length;
+      int cardId = await _cardsController.amountCards() + 1;
       Cards newCard = Cards(
         id: cardId,
         topicId: newTopic.id,
@@ -253,7 +253,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
       cardIds.add(cardId);
     }
 
-    //update card lists
+    //update topic
     newTopic.cards = cardIds;
     await _topicController.updateTopic(newTopic);
 

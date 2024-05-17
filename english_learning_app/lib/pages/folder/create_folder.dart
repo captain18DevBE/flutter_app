@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:english_learning_app/models/Topic.dart';
+import 'package:english_learning_app/controllers/TopicController.dart';
+import 'package:english_learning_app/controllers/UserController.dart';
+import 'package:english_learning_app/controllers/LibraryController.dart'; // FolderController
+import 'package:english_learning_app/models/Library.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CreateFolderPage extends StatefulWidget {
   @override
@@ -13,14 +19,21 @@ class _CreateFolderPageState extends State<CreateFolderPage> {
   bool _isAddingDescription = false;
   bool _isLoading = false;
 
+  final TopicController _topicController = TopicController();
+  final UserController _userController = UserController();
+  final LibraryController _libraryController = LibraryController();
+
   @override
   void initState() {
     super.initState();
-    _existingTopics = [
-      Topic(name: 'Topic 1', wordCount: 10),
-      Topic(name: 'Topic 2', wordCount: 20),
-      Topic(name: 'Topic 3', wordCount: 30),
-    ];
+    _loadExistingTopics();
+  }
+
+  Future<void> _loadExistingTopics() async {
+    List<Topic> topics = await _topicController.readTopicByEmailUserOwner();
+    setState(() {
+      _existingTopics = topics;
+    });
   }
 
   @override
@@ -207,8 +220,8 @@ class _CreateFolderPageState extends State<CreateFolderPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(topic.name, style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('Words: ${topic.wordCount}'),
+              Text(topic.title, style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('Words: ${topic.cards.length}'),
             ],
           ),
           Spacer(),
@@ -236,8 +249,8 @@ class _CreateFolderPageState extends State<CreateFolderPage> {
               itemBuilder: (context, index) {
                 final topic = _existingTopics[index];
                 return CheckboxListTile(
-                  title: Text(topic.name),
-                  subtitle: Text('Words: ${topic.wordCount}'),
+                  title: Text(topic.title),
+                  subtitle: Text('Words: ${topic.cards.length}'),
                   value: _selectedTopics.contains(topic),
                   onChanged: (value) {
                     setState(() {
@@ -281,22 +294,42 @@ class _CreateFolderPageState extends State<CreateFolderPage> {
     setState(() {
       _selectedTopics.remove(topic);
     });
-    _showSnackbar('Removed ${topic.name}');
+    _showSnackbar('Removed ${topic.title}');
   }
 
-  void _createFolder() {
-// Simulate a loading state
+  void _createFolder() async {
     setState(() {
       _isLoading = true;
     });
 
-    Future.delayed(Duration(seconds: 2), () {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      _showSnackbar('Error: No logged in user');
       setState(() {
         _isLoading = false;
-        Navigator.pop(context);
-        _showSnackbar('Folder created successfully!');
       });
+      return;
+    }
+    String userEmail = currentUser.email!;
+
+    Library newLibrary = Library(
+      id: 0,
+      title: _folderNameController.text,
+      createBy: userEmail,
+      description: _isAddingDescription ? _descriptionController.text : null,
+    );
+
+    newLibrary.topics = _selectedTopics.map((topic) => topic.id).toList();
+    await _libraryController.updateLibraryById(newLibrary);
+
+    await _libraryController.addLibrary(newLibrary);
+
+    setState(() {
+      _isLoading = false;
     });
+
+    Navigator.pop(context);
+    _showSnackbar('Folder created successfully!');
   }
 
   void _showSnackbar(String message) {
@@ -306,11 +339,4 @@ class _CreateFolderPageState extends State<CreateFolderPage> {
       SnackBar(content: Text(message)),
     );
   }
-}
-
-class Topic {
-  final String name;
-  final int wordCount;
-
-  const Topic({required this.name, required this.wordCount});
 }

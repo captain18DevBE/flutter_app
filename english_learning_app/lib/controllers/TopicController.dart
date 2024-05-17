@@ -111,13 +111,49 @@ class TopicController {
     }
   }
 
+   // Fetch a topic by its ID
+  Future<Topic> getTopicById(int topicId) async {
+    try {
+      final docSnapshot = await _topicRef.doc(topicId.toString()).get();
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        return Topic(
+          id: data['id'],
+          createBy: data['create_by'],
+          title: data['title'],
+          cards: List<int>.from(data['cards']),
+          description: data['description'],
+        );
+      } else {
+        throw Exception('Topic not found');
+      }
+    } on FirebaseException catch (error) {
+      print('Failed to fetch topic: $error');
+      throw Exception('Failed to fetch topic');
+    }
+  }
+
+
   //Read topic by email
-  Future<QuerySnapshot<Object?>> readTopicByEmailUserOwner(String email) async {
+  Future<List<Topic>> readTopicByEmailUserOwner() async {
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      return [];
+    }
     try {
       final querySnapshot = await _topicRef
-        .where('create_by', isEqualTo: email)
+        .where('create_by', isEqualTo: currentUser.email)
         .get();
-      return Future.value(querySnapshot);
+      return querySnapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return Topic(
+        id: data['id'],
+        createBy: data['create_by'],
+        title: data['title'],
+        cards: List<int>.from(data['cards']),
+        description: data['description'],
+      );
+    }).toList();
       // return querySnapshot;
     } on FirebaseException catch (error) {
       print('Error reading topics: $error');

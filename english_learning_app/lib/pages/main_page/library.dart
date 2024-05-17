@@ -2,6 +2,12 @@ import 'package:english_learning_app/pages/folder/edit_folder.dart';
 import 'package:english_learning_app/pages/menu_topic/learning.dart';
 import 'package:english_learning_app/pages/topics/edit_topic.dart';
 import 'package:flutter/material.dart';
+import 'package:english_learning_app/controllers/TopicController.dart';
+import 'package:english_learning_app/controllers/UserController.dart';
+import 'package:english_learning_app/controllers/LibraryController.dart';
+import 'package:english_learning_app/models/Topic.dart';
+import 'package:english_learning_app/models/Library.dart';
+import 'package:intl/intl.dart';
 
 class LibraryPage extends StatefulWidget {
   @override
@@ -9,15 +15,34 @@ class LibraryPage extends StatefulWidget {
 }
 
 class _LibraryPageState extends State<LibraryPage> {
-  final _topics = [
-    Topic(name: 'Math', wordCount: 50),
-    Topic(name: 'Science', wordCount: 40),
-    Topic(name: 'History', wordCount: 30),
-  ];
-  final _folders = [
-    Folder(name: 'Work Documents', topicCount: 2),
-    Folder(name: 'Personal Notes', topicCount: 1),
-  ];
+  List<Topic> _topics = [];
+  List<Library> _folders = [];
+  
+  final TopicController _topicController = TopicController();
+  final UserController _userController = UserController();
+  final LibraryController _folderController = LibraryController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTopics();
+    _loadFolders();
+  }
+
+  Future<void> _loadFolders() async {
+    final folders = await _folderController.readLibraryByEmailUserOwner();
+    setState(() {
+      _folders = folders;
+      print(_folders);
+    });
+  }
+
+  Future<void> _loadTopics() async {
+    final topics = await _topicController.readTopicByEmailUserOwner();
+    setState(() {
+      _topics = topics;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,10 +118,9 @@ class _LibraryPageState extends State<LibraryPage> {
             ],
           ),
           child: ListTile(
-            title: Text(topic.name),
-            subtitle: Text('Words: ${topic.wordCount}'),
+            title: Text(topic.title),
+            subtitle: Text('Words: ${topic.cards.length}'),
             onTap: () {
-              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => Learning()),
@@ -128,12 +152,12 @@ class _LibraryPageState extends State<LibraryPage> {
             ],
           ),
           child: ListTile(
-            title: Text(folder.name),
-            subtitle: Text('Topics: ${folder.topicCount}'),
+            title: Text(folder.title),
+            subtitle: Text('Topics: ${folder.topics.length}'),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditFolderPage(),)
+                MaterialPageRoute(builder: (context) => EditFolderPage()),
               );
             },
           ),
@@ -142,19 +166,3 @@ class _LibraryPageState extends State<LibraryPage> {
     );
   }
 }
-
-class Topic {
-  final String name;
-  final int wordCount;
-
-  const Topic({required this.name, required this.wordCount});
-}
-
-class Folder {
-  final String name;
-  final int topicCount;
-
-  const Folder({required this.name, required this.topicCount});
-}
-
-

@@ -8,8 +8,8 @@ class EditFolderPage extends StatefulWidget {
 class _EditFolderPageState extends State<EditFolderPage> {
   final _folderNameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  List<Topic> _existingTopics = [];
-  List<Topic> _selectedTopics = [];
+  List<Topic1> _existingTopics = [];
+  List<Topic1> _selectedTopics = [];
   bool _isAddingDescription = false;
   bool _isLoading = false;
 
@@ -17,9 +17,9 @@ class _EditFolderPageState extends State<EditFolderPage> {
   void initState() {
     super.initState();
     _existingTopics = [
-      Topic(name: 'Topic 1', wordCount: 10),
-      Topic(name: 'Topic 2', wordCount: 20),
-      Topic(name: 'Topic 3', wordCount: 30),
+      Topic1(name: 'Topic 1', wordCount: 10),
+      Topic1(name: 'Topic 2', wordCount: 20),
+      Topic1(name: 'Topic 3', wordCount: 30),
     ];
     _selectedTopics.add(_existingTopics[1]);
   }
@@ -187,7 +187,7 @@ class _EditFolderPageState extends State<EditFolderPage> {
     );
   }
 
-  Widget _buildTopicCard(Topic topic) {
+  Widget _buildTopicCard(Topic1 topic) {
     return Container(
       margin: const EdgeInsets.all(5),
       padding: const EdgeInsets.all(15),
@@ -264,7 +264,7 @@ class _EditFolderPageState extends State<EditFolderPage> {
     );
   }
 
-  void toggleTopicSelection(Topic topic) {
+  void toggleTopicSelection(Topic1 topic) {
     setState(() {
       if (_selectedTopics.contains(topic)) {
         _selectedTopics.remove(topic);
@@ -278,7 +278,7 @@ class _EditFolderPageState extends State<EditFolderPage> {
     Navigator.pop(context);
   }
 
-  void removeTopic(Topic topic) {
+  void removeTopic(Topic1 topic) {
     setState(() {
       _selectedTopics.remove(topic);
     });
@@ -308,9 +308,9 @@ class _EditFolderPageState extends State<EditFolderPage> {
   }
 }
 
-class Topic {
+class Topic1 {
   final String name;
   final int wordCount;
 
-  const Topic({required this.name, required this.wordCount});
+  const Topic1({required this.name, required this.wordCount});
 }

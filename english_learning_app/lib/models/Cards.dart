@@ -9,6 +9,6 @@ class Cards {
   String createAt = DateFormat("dd-MM-yyyy").format(DateTime.now());
   String? urlPhoto;
 
-  Cards({required this.id, required this.topicId, required this.term, required this.createByUserEmail, required this.mean, this.urlPhoto});
+  Cards({required this.id,required this.topicId, required this.term, required this.createByUserEmail, required this.mean, this.urlPhoto});
 
 }

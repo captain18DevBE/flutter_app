@@ -343,8 +343,3 @@ class AddWordDefinitionRow extends StatelessWidget {
   }
 }
 
-class Topic {
-  final String name;
-
-  const Topic({required this.name});
-}

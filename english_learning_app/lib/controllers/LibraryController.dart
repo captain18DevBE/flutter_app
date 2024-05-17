@@ -52,13 +52,28 @@ class LibraryController {
 
 
   //Read Library By Email
-  Future<QuerySnapshot<Object?>> readLibraryByEmailUserOwner(String email) async {
+  Future<List<Library>> readLibraryByEmailUserOwner() async {
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      return [];
+    }
     try {
       final querySnapshot = await _libraryRef
-        .where("create_by", isEqualTo: email)
+        .where("create_by", isEqualTo: currentUser.email)
         .get();
 
-      return Future.value(querySnapshot);
+      return querySnapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      Library library = Library(
+        id: data['id'],
+        createBy: data['create_by'],
+        title: data['title'],
+        description: data['description'],
+      );
+      library.topics = List<int>.from(data['topics'] as List);
+      return library;
+
+    }).toList();
     } on FirebaseException catch (error) {
       print('Error reading library: $error');
       return Future.error(error);
