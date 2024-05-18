@@ -149,11 +149,11 @@ class _LibraryPageState extends State<LibraryPage> {
             title: Text(topic.title),
             subtitle: Text('Words: ${topic.cards.length}'),
             onTap: () {
-              addStatusLearning(_user.email!, topic.id);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Learning(topicId: topic.id,)),
-              );
+                addStatusLearning(_user.email!, topic.id);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Learning(topicId: topic.id,)),
+                );
             },
           ),
         );

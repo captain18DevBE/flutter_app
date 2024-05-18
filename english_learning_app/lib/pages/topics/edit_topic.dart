@@ -1,9 +1,16 @@
+import 'package:english_learning_app/pages/topics/settings_topic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:english_learning_app/controllers/TopicController.dart';
+import 'package:english_learning_app/controllers/CardsController.dart';
+import 'package:english_learning_app/models/Cards.dart';
+import 'package:english_learning_app/models/Topic.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EditTopicPage extends StatefulWidget {
+  final int topicId;
 
-  const EditTopicPage({Key? key}) : super(key: key);
+  const EditTopicPage({required this.topicId});
 
   @override
   _EditTopicPageState createState() => _EditTopicPageState();
@@ -13,18 +20,38 @@ class _EditTopicPageState extends State<EditTopicPage> {
   final _topicNameController = TextEditingController();
   List<Map<String, String>> _wordDefinitions = [];
   FlutterTts flutterTts = FlutterTts();
+  bool _isPublic = false;
+
+  final TopicController _topicController = TopicController();
+  bool _isLoading = false;
+  final CardsController _cardsController = CardsController();
 
   @override
   void initState() {
     super.initState();
     flutterTts.setLanguage("en-US");
-    _topicNameController.text = 'TOPIC NAME';
-    _wordDefinitions = [
-      {'word': 'Apple', 'definition': 'A fruit', 'isStarred': 'false'},
-      {'word': 'Banana', 'definition': 'Another fruit', 'isStarred': 'true'},
-      {'word': 'Carrot', 'definition': 'A vegetable', 'isStarred': 'false'},
-    ];
-    // Load word definitions if available
+    _loadTopicData(widget.topicId);
+  }
+
+  Future<void> _loadTopicData(int topicId) async {
+    try {
+      final topic = await _topicController.getTopicById(topicId);
+      final cards = await _cardsController.readCardsByTopicId(topicId);
+      setState(() {
+        _topicNameController.text = topic.title;
+        _wordDefinitions = cards.map((card) {
+          return {
+            'id': card.id.toString(),
+            'word': card.term,
+            'definition': card.mean,
+            'isStarred': 'false', // Placeholder, you may need to adjust this
+          };
+        }).toList();
+      });
+    } catch (error) {
+      // Handle error
+      print('Error loading topic data: $error');
+    }
   }
 
   @override
@@ -36,6 +63,73 @@ class _EditTopicPageState extends State<EditTopicPage> {
 
   Future<void> _speak(String text) async {
     await flutterTts.speak(text);
+  }
+
+  void _showSnackbar(String message) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    scaffoldMessenger.hideCurrentSnackBar();
+    scaffoldMessenger.showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  Future<void> _saveChanges() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      _showSnackbar('Error: No logged in user');
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+    String userEmail = currentUser.email!;
+
+    try {
+      List<int> cardIds = [];
+      for (var cardData in _wordDefinitions) {
+        final card = Cards(
+          id: int.parse(cardData['id']!),
+          topicId: widget.topicId,
+          term: cardData['word']!,
+          mean: cardData['definition']!,
+          createByUserEmail: userEmail,
+          urlPhoto: '',
+        );
+
+        // Update the card and get the card ID
+        await _cardsController.updateCardById(card);
+
+        cardIds.add(int.parse(cardData['id']!));
+      }
+
+      final topic = Topic(
+        id: widget.topicId,
+        title: _topicNameController.text,
+        description: '', // Add description field if needed
+        createBy: userEmail, // Add createBy field if needed
+        cards: cardIds,
+      );
+
+      await _topicController.updateTopic(topic);
+
+      print('Changes saved successfully');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Changes saved successfully')),
+      );
+    } catch (error) {
+      print('Error saving changes: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving changes: $error')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -50,6 +144,26 @@ class _EditTopicPageState extends State<EditTopicPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TopicSettingPage(
+                    isPublic: _isPublic,
+                    onSettingChanged: (isPublic) {
+                      setState(() {
+                        _isPublic = isPublic;
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
         elevation: 5,
         backgroundColor: Colors.blue[700],
         centerTitle: true,
@@ -76,7 +190,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'TOPIC NAME',
+                    _topicNameController.text,
                     style: const TextStyle(fontSize: 20, color: Colors.white),
                   ),
                   IconButton(
@@ -98,7 +212,8 @@ class _EditTopicPageState extends State<EditTopicPage> {
                       return WordDefinitionRow(
                         word: wordDefinition['word']!,
                         definition: wordDefinition['definition']!,
-                        onEdit: () => showWordEditDialog(context, index),
+                        onEdit: () => showWordEditDialog(context, index,
+                            int.parse(wordDefinition['id'].toString())),
                         onListen: () => _speak(wordDefinition['word']!),
                         isStarred: wordDefinition['isStarred'] == 'true',
                         onMarkStar: () {
@@ -115,12 +230,17 @@ class _EditTopicPageState extends State<EditTopicPage> {
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pop(context);
+                  _saveChanges;
+                },
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.green),
                 ),
                 icon: const Icon(Icons.check, color: Colors.white),
-                label: const Text('Save', style: TextStyle(color: Colors.white)),
+                label:
+                    const Text('Save', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -129,9 +249,43 @@ class _EditTopicPageState extends State<EditTopicPage> {
     );
   }
 
-  void addWordDefinition() {
+  void addWordDefinition() async {
+
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      _showSnackbar('Error: No logged in user');
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+    String userEmail = currentUser.email!;
+
+    int cardId = await _cardsController.amountCards() + 1;
+    Cards card = Cards(
+                id: cardId,
+                topicId: widget.topicId,
+                term: 'English Word',
+                mean: 'Vietnamese Word',
+                createByUserEmail: userEmail,
+                urlPhoto: '',
+              );
+
+    await _cardsController.addCard(card);
+
+     Topic topic = await _topicController.getTopicById(widget.topicId);
+
+    List<int> cardList = topic.cards.toList();
+
+    cardList.add(cardId);
+
+    topic.cards = cardList;
+
+    await _topicController.updateTopic(topic);
+
     setState(() {
       _wordDefinitions.add({
+        'id': DateTime.now().millisecondsSinceEpoch.toString(),
         'word': 'English Word',
         'definition': 'Vietnamese Word',
         'isStarred': 'false',
@@ -165,9 +319,11 @@ class _EditTopicPageState extends State<EditTopicPage> {
     );
   }
 
-  void showWordEditDialog(BuildContext context, int index) {
-    final wordController = TextEditingController(text: _wordDefinitions[index]['word']!);
-    final definitionController = TextEditingController(text: _wordDefinitions[index]['definition']!);
+  void showWordEditDialog(BuildContext context, int index, int id) {
+    final wordController =
+        TextEditingController(text: _wordDefinitions[index]['word']!);
+    final definitionController =
+        TextEditingController(text: _wordDefinitions[index]['definition']!);
 
     showDialog(
       context: context,
@@ -194,25 +350,53 @@ class _EditTopicPageState extends State<EditTopicPage> {
           ),
           TextButton(
             onPressed: () {
+              User? currentUser = FirebaseAuth.instance.currentUser;
+              if (currentUser == null) {
+                _showSnackbar('Error: No logged in user');
+                setState(() {
+                  _isLoading = false;
+                });
+                return;
+              }
+              String userEmail = currentUser.email!;
+
+              Cards card = Cards(
+                id: id,
+                topicId: widget.topicId,
+                term: wordController.text,
+                mean: definitionController.text,
+                createByUserEmail: userEmail,
+                urlPhoto: '',
+              );
+              _cardsController.updateCardById(card);
               setState(() {
                 _wordDefinitions[index]['word'] = wordController.text;
-                _wordDefinitions[index]['definition'] = definitionController.text;
+                _wordDefinitions[index]['definition'] =
+                    definitionController.text;
               });
               Navigator.pop(context);
             },
             child: const Text('Save'),
           ),
           TextButton(
-            onPressed: () {
-              setState(() {
-                _wordDefinitions.removeAt(index);
-              });
-              Navigator.pop(context);
+            onPressed: () async {
+              try {
+                Topic topic = await _topicController.getTopicById(widget.topicId);
+                List<int> cardList = topic.cards.toList();
+                cardList.remove(id);
+                topic.cards = cardList;
+                await _topicController.updateTopic(topic);
+                await _cardsController.deleteCard(id);
+                setState(() {
+                  _wordDefinitions.removeAt(index);
+                });
+                Navigator.pop(context);
+                _showSnackbar('Card deleted successfully');
+              } catch (error) {
+                _showSnackbar('Error deleting card: $error');
+              }
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -229,81 +413,48 @@ class WordDefinitionRow extends StatelessWidget {
   final VoidCallback onMarkStar;
 
   const WordDefinitionRow({
-    Key? key,
     required this.word,
     required this.definition,
     required this.onEdit,
     required this.onListen,
     required this.isStarred,
     required this.onMarkStar,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+    return Card(
+      color: Colors.white.withOpacity(0.8),
       child: Padding(
-        padding: const EdgeInsets.only(left: 15, right: 15),
-        child: IntrinsicHeight(
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      word,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      '($definition)',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 5),
-              VerticalDivider(
-                indent: 10,
-                endIndent: 10,
-                color: Colors.grey,
-                thickness: 1,
-              ),
-              const SizedBox(width: 5),
-              Column(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: onListen,
+              icon: const Icon(Icons.volume_up),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                    onPressed: onEdit,
-                    icon: const Icon(Icons.edit),
-                  ),
-                  IconButton(
-                    onPressed: onListen,
-                    icon: const Icon(Icons.volume_up_outlined),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      isStarred ? Icons.star : Icons.star_outline,
-                      color: isStarred ? Colors.yellow : null,
-                    ),
-                    onPressed: onMarkStar,
-                  ),
+                  Text('ENGLISH: $word'),
+                  const SizedBox(height: 8),
+                  Text('VIETNAMESE: $definition'),
                 ],
               ),
-            ],
-          ),
+            ),
+            IconButton(
+              onPressed: onEdit,
+              icon: const Icon(Icons.edit),
+            ),
+            IconButton(
+              onPressed: onMarkStar,
+              icon: Icon(
+                isStarred ? Icons.star : Icons.star_border,
+                color: isStarred ? Colors.yellow : null,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -313,33 +464,17 @@ class WordDefinitionRow extends StatelessWidget {
 class AddWordDefinitionRow extends StatelessWidget {
   final VoidCallback onAdd;
 
-  const AddWordDefinitionRow({Key? key, required this.onAdd}) : super(key: key);
+  const AddWordDefinitionRow({required this.onAdd});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 16.0, bottom: 8.0),
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: CircleBorder(),
-        shadows: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: IconButton(
-          onPressed: onAdd,
-          iconSize: 24.0,
-          icon: const Icon(Icons.add, color: Colors.blue),
-        ),
+    return Card(
+      color: Colors.white.withOpacity(0.8),
+      child: ListTile(
+        leading: const Icon(Icons.add),
+        title: const Text('Add Word and Definition'),
+        onTap: onAdd,
       ),
     );
   }
 }
-

@@ -42,7 +42,7 @@ class _TypingTestState extends State<TypingTest> {
           IconButton(
             icon: Icon(Icons.more_horiz),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder:(context) => ActionTopic()));
+              //Navigator.push(context, MaterialPageRoute(builder:(context) => ActionTopic()));
             }
           ), 
         ],

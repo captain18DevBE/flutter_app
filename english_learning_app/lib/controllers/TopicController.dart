@@ -35,27 +35,21 @@ class TopicController {
       .catchError((error) => print("Failed to add topic: $error"));
   }
 
-  //Update topic
+  // Update Topic
   Future<void> updateTopicById(Topic data) async {
-    final topic = <String, dynamic> {
-      'title' : data.createBy,
-      'description' : data.description,
-      'create_by' : data.createBy,
-      'create_at' : data.createAt,
-      'is_public' : data.isPublic,
-      'cards' : data.cards
+    final topic = {
+      'title': data.title,
+      'description': data.description,
+      'create_by': data.createBy,
+      'create_at': data.createAt,
+      'is_public': data.isPublic,
+      'cards': data.cards
     };
     return _topicRef
       .doc(data.id.toString())
       .update(topic)
-      .then((value) {
-        print("Topic updated");
-        return Future.value();
-        }) 
-      .catchError((error) {
-        print("Failed to update topic: $error");
-        return Future.error(error);
-      }); 
+      .then((value) => print("Topic updated"))
+      .catchError((error) => print("Failed to update topic: $error"));
   }
 
   Future<void> updateTopic(Topic topic) async {

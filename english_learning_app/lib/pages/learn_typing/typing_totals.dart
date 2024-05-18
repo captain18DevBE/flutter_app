@@ -36,7 +36,7 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
           IconButton(
             icon: Icon(Icons.more_horiz),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder:(context) => ActionTopic()));
+              //Navigator.push(context, MaterialPageRoute(builder:(context) => ActionTopic()));
             }
           ), 
         ],
