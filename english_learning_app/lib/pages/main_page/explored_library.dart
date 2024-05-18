@@ -107,7 +107,7 @@ class _ExploredPageState extends State<ExploredPage> {
                 
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => Learning()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => Learning(topicId: 2,)));
                     },
                     child: Container(
                       // padding: const EdgeInsets.all(8.0),

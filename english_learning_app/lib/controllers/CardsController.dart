@@ -90,6 +90,27 @@ class CardsController {
     }
   }
 
-  //Read Card By email
+  //Read Card By TopicId
+  Future<List<Cards>> readCardsByTopicId(int topicId) async {
+    try {
+      final querySnapshot = await _cardsRef
+        .where('topic_id', isEqualTo: topicId)
+        .get();
+
+      return querySnapshot.docs.map((data) {
+        return Cards(
+        id: data['id'], 
+        topicId: data['topic_id'], 
+        term: data['term'], 
+        createByUserEmail: data['create_by'], 
+        mean: data['mean']);
+      }).toList();
+
+    } on FirebaseException catch (error) {
+      print('Failed to read card: $error');
+      return Future.error(error);
+    }
+
+  }
 
 }

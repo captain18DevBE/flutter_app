@@ -1,7 +1,10 @@
 
+import 'package:english_learning_app/pages/learn_flash_card/flashcard.dart';
+import 'package:english_learning_app/pages/learn_flash_card/reusable_card.dart';
 import 'package:english_learning_app/pages/main_page/library.dart';
 import 'package:english_learning_app/pages/menu_topic/learning.dart';
 import 'package:english_learning_app/pages/setup_root/all_constants.dart';
+import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 
 class HomeLibrary extends StatefulWidget {
@@ -22,7 +25,6 @@ class _HomeLibraryState extends State<HomeLibrary> {
         
             children: [
               
-        
               Container(
                 width: double.infinity,
                 height: 70,
@@ -68,63 +70,38 @@ class _HomeLibraryState extends State<HomeLibrary> {
 
               Container(
                 width: double.infinity,
-                height: 200,
+                height: 300,
                 child: PageView.builder(
                   itemCount: 4,
                   itemBuilder: (BuildContext context, int index) { 
-                    
                     return Container(
-                    // width: 200,
-                    // height: 200,
-                    margin: EdgeInsets.fromLTRB(25, 20, 25, 0),
-                    decoration: BoxDecoration(
-                      // color: Colors.yellow,
-                      borderRadius: BorderRadius.circular(10), 
-                      border: Border.all(
-                        color: Colors.black, // Màu viền
-                        width: 1, // Độ dày viền
-                      ),
-                    ),
-                  
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Learning()));
-                      },
-                      child: Container(
-                        // padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                          
-                          Expanded(
-                            child: Container(
-                              margin: EdgeInsets.fromLTRB(15, 5, 15, 0),
-                              width: double.infinity,
-                              child: Text("Từ vựng đồ ăn")),
-                          ),
-                          Expanded(
-                            child: Container(
-                              margin: EdgeInsets.fromLTRB(15, 5, 15, 0),
-                              alignment: Alignment.bottomLeft,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  CircleAvatar(
-                                    backgroundImage: AssetImage("assets/demo.jpg"),
+                    child: Stack(
+                            children: [
+                              FlipCard(
+                                direction: FlipDirection.VERTICAL,
+                                front: ReusableCard(
+                                    text: 'Chicken'
+                                    ),
+                                back: ReusableCard(
+                                    text: 'Con ga'),
+                                ),
+
+                                Positioned(
+                                  bottom: 50,
+                                  right: 50,
+                                  child: GestureDetector(
+                                    child: Container(
+                                      child: Icon(Icons.pages_rounded, color: mainColor,)
+                                    ),
+                                    onTap: () {
+                                        Navigator.push(context, 
+                                          MaterialPageRoute(builder: (context) => const FlashCardPage())
+                                        );
+                                    },
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Text("emailuser@gmail.com"),
-                                  ),
-                                  Container(
-                                    width: 40,
-                                  ),
-                                  ],),
-                            ),
-                          ),
-                        ],),
-                      )
-                    ),
+                                ),
+
+                              ])
                   );
                   },
                   
@@ -168,7 +145,7 @@ class _HomeLibraryState extends State<HomeLibrary> {
                   
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Learning()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Learning(topicId: 2,)));
                       },
                       child: Container(
                         // padding: const EdgeInsets.all(8.0),
@@ -234,11 +211,8 @@ class _HomeLibraryState extends State<HomeLibrary> {
                   itemBuilder: (BuildContext context, int index) { 
                     
                     return Container(
-                    // width: 200,
-                    // height: 200,
                     margin: EdgeInsets.fromLTRB(25, 20, 25, 0),
                     decoration: BoxDecoration(
-                      // color: Colors.yellow,
                       borderRadius: BorderRadius.circular(10), 
                       border: Border.all(
                         color: Colors.black, // Màu viền
@@ -248,7 +222,7 @@ class _HomeLibraryState extends State<HomeLibrary> {
                   
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Learning()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Learning(topicId: 2,)));
                       },
                       child: Container(
                         // padding: const EdgeInsets.all(8.0),

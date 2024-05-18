@@ -123,7 +123,7 @@ class _LibraryPageState extends State<LibraryPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Learning()),
+                MaterialPageRoute(builder: (context) => Learning(topicId: topic.id,)),
               );
             },
           ),

@@ -97,17 +97,17 @@ class TopicController {
   }
 
   //Read topic by id
-  Future<DocumentSnapshot<Object?>> readTopicById(int topicId) async {
-    try {
-      final docSnapshot = await _topicRef.doc(topicId.toString())
-        .get();
-        return Future.value(docSnapshot);
-        //return docSnapshot;
-    } on FirebaseException catch (error) {
-      print('Failed to read topic: $error');
-      return Future.error(error);
-    }
-  }
+  // Future<DocumentSnapshot<Object?>> readTopicById(int topicId) async {
+  //   try {
+  //     final docSnapshot = await _topicRef.doc(topicId.toString())
+  //       .get();
+  //       return Future.value(docSnapshot);
+  //       //return docSnapshot;
+  //   } on FirebaseException catch (error) {
+  //     print('Failed to read topic: $error');
+  //     return Future.error(error);
+  //   }
+  // }
 
    // Fetch a topic by its ID
   Future<Topic> getTopicById(int topicId) async {

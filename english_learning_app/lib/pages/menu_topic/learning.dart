@@ -1,34 +1,94 @@
 import 'dart:ffi';
 
+import 'package:english_learning_app/controllers/CardsController.dart';
+import 'package:english_learning_app/controllers/TopicController.dart';
+import 'package:english_learning_app/controllers/UserAuthController.dart';
+import 'package:english_learning_app/models/Cards.dart';
+import 'package:english_learning_app/models/Topic.dart';
 import 'package:english_learning_app/pages/learn_multiple_choise/multiple_test.dart';
 import 'package:english_learning_app/pages/learn_typing/typing_test.dart';
 import 'package:english_learning_app/pages/menu_topic/action_topics.dart';
 import 'package:english_learning_app/pages/setup_root/all_constants.dart';
 import 'package:english_learning_app/pages/learn_flash_card/flashcard.dart';
 import 'package:english_learning_app/pages/learn_flash_card/reusable_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class Learning extends StatefulWidget {
-  const Learning({super.key});
+  int topicId;
+  Learning({required this.topicId, super.key});
 
   @override
   State<Learning> createState() => _LearningState();
 }
 
 class _LearningState extends State<Learning> {
-
+  final UserAuthController _userAuthController = new UserAuthController();
+  final TopicController _topicController = new TopicController();
+  final CardsController _cardsController = new CardsController();
   final PageController _pageController = new PageController();
-
+  late User _user;
+  late Topic _topic;
+  late List<Cards> _cards;
   late int _activePage = 2;
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchCurrentUser();
+    fetchTopic(widget.topicId);
+    fetchListCards(widget.topicId);
+  }
 
   @override
   void dispose() {
     // TODO: implement dispose
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> fetchCurrentUser() async {
+    try {
+      User? current = await _userAuthController.getCurrentUser();
+      setState(() {
+        if (current != null) {
+          _user = current;
+        }
+      });
+    } catch (error) {
+      print("Have problem load user ${error}");
+    }
+  }
+
+  Future<void> fetchTopic(int topicId) async {
+    try {
+      var topic = (await _topicController.getTopicById(widget.topicId)) as Topic;
+      setState(() {
+        _topic = topic;
+      });
+      print(topic.title);
+    } catch (error) {
+      print('Failed to fetch topic: $error');
+    }
+  }
+
+  Future<void> fetchListCards(int topicId) async {
+    try {
+      List<Cards> cards = await _cardsController.readCardsByTopicId(topicId);
+      setState(() {
+        _cards = cards;
+
+        print("card: " + cards.length.toString());
+      });
+    } catch (error) {
+      print('Failed to fetch list cards: $error');
+    }
+
   }
 
   @override
@@ -52,7 +112,7 @@ class _LearningState extends State<Learning> {
             }
           ), 
         ],
-        title: Text("Leaning", style: TextStyle(color: Colors.white),),
+        title: Text(_topic.title, style: TextStyle(color: Colors.white),),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 5,
         backgroundColor: Colors.blue[700],
@@ -71,17 +131,19 @@ class _LearningState extends State<Learning> {
                       child: 
                       PageView.builder(
                         controller: _pageController,
-                        itemCount: 5,
+                        itemCount: _cards.length,
                         itemBuilder: (context, index) {
+                          final cardData = _cards[index];
                           return Stack(
                             children: [
                               FlipCard(
                                 direction: FlipDirection.VERTICAL,
                                 front: ReusableCard(
-                                    text: 'Con ga'
+                                    text: cardData.term
                                     ),
                                 back: ReusableCard(
-                                    text: 'Chicken'),
+                                    text: cardData.mean
+                                    ),
                                 
                                 ),
 
@@ -100,8 +162,7 @@ class _LearningState extends State<Learning> {
                                   ),
                                 ),
 
-                              ]
-                          );
+                              ]);
                         }
                         )
                   ),
@@ -140,7 +201,7 @@ class _LearningState extends State<Learning> {
                   Expanded(
                     child: Container(
                       margin: EdgeInsets.fromLTRB(20, 10, 0, 10),
-                      child: Text("Tile Topic: Test UI", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19, color: mainColor),),
+                      child: Text("Title: " + _topic.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19, color: mainColor),),
                     ),
                   ),
         
@@ -167,22 +228,22 @@ class _LearningState extends State<Learning> {
                 margin: EdgeInsets.fromLTRB(20, 20, 20, 5),
                 child: Row(children: [
                   CircleAvatar(
-                    backgroundImage: AssetImage("assets/demo.jpg"),
+                    backgroundImage: NetworkImage(_user.photoURL ?? "https://drive.google.com/file/d/1S_t4qHw4dgLMmJHEfcFcPkXDX2fpwYMF/view?usp=sharing"),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Text("emailuser@gmail.com"),
+                    child: Text(_user.email ?? "emailuser@gmail.com"),
                   ),
                   Container(
                     width: 40,
                   ),
-                  Text("Số lượng thẻ")
+                  Text("Số lượng thẻ: " + _cards.length.toString())
                 ],),
               ),
         
               Container(
                 alignment: Alignment.centerLeft,
-                margin: EdgeInsets.fromLTRB(20, 5, 0, 5),
+                margin: EdgeInsets.fromLTRB(20, 10, 0, 5),
                 child: Text("Mô tả học phần"),
               ),
 
@@ -289,8 +350,9 @@ class _LearningState extends State<Learning> {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTest()));
                 },
             ),
-                      ],),
-                  ),
+
+            ],),
+            ),
 
             Container(
               margin: EdgeInsets.fromLTRB(25, 5, 20, 0),
@@ -299,105 +361,17 @@ class _LearningState extends State<Learning> {
             ),
 
             Container(
-
-              margin: EdgeInsets.fromLTRB(25, 5, 25, 5),  
-              
-              child: Column(children: [
-                Container(
-                  width: double.infinity,
-                  height: 90,
-                  margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Colors.white
-                  ),
-
-                  child: Column(children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            margin: EdgeInsets.fromLTRB(25, 5, 25, 5),  
-                            child: Text("Tieng anh", style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),),
-                          ),
-                        ),
-
-                        GestureDetector(
-                          onTap: () {
-
-                          },
-                          child: Icon(Icons.volume_up, color: Colors.grey,),
-                        ),
-                        
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: GestureDetector(
-                            
-                            onTap: () {
-                          
-                            },
-                            child: Icon(Icons.star, color: Colors.grey,),
-                          ),
-                        )
-                      ],
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(25, 0, 25, 5), 
-                      alignment: Alignment.centerLeft,
-                      child: Text("Nghia cua the", style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),),
-                    )
-
-
-                  ],),
-                ),
-                Container(
-                  width: double.infinity,
-                  height: 80,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: Colors.white
-                  ),
-
-                  child: Column(children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            margin: EdgeInsets.fromLTRB(25, 5, 25, 5),  
-                            child: Text("Tieng anh", style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),),
-                          ),
-                        ),
-
-                        GestureDetector(
-                          onTap: () {
-
-                          },
-                          child: Icon(Icons.volume_up, color: Colors.grey,),
-                        ),
-                        
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: GestureDetector(
-                            
-                            onTap: () {
-                          
-                            },
-                            child: Icon(Icons.star, color: Colors.grey,),
-                          ),
-                        )
-                      ],
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(25, 0, 25, 5), 
-                      alignment: Alignment.centerLeft,
-                      child: Text("Nghia cua the", style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),),
-                    )
-
-                    
-                  ],),
-                ),
+              height: 200,
+              width: double.infinity,
+              child: ListView.builder(
+                itemCount: _cards.length,
+                itemBuilder: ((context, index) {
+                  
+                return detailCards(index);
                 
-              ],),
+                
+                })
+              ),
             ),
             
             
@@ -405,5 +379,57 @@ class _LearningState extends State<Learning> {
           ),
       ),
     );
+  }
+  
+  Widget detailCards(int index) {
+    String team = _cards[index].term;
+    String mean = _cards[index].mean;
+    return 
+      Container(
+        margin: EdgeInsets.fromLTRB(25, 10, 25, 0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10), // Maintain rounded corners
+          border: Border.all(
+            color: Colors.grey, // Set border color to black
+            width: 1, // Set border width to 2 pixels (optional)
+          ),
+          ),
+        width: double.infinity,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(25, 5, 25, 5),
+                    child: Text(team, style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),),
+                  ),
+                ),
+        
+                GestureDetector(
+                  onTap: () {
+        
+                  },
+                  child: Icon(Icons.volume_up, color: Colors.grey,),
+                ),
+                
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: GestureDetector(
+                    onTap: () {
+                  
+                    },
+                    child: Icon(Icons.star, color: Colors.grey,),
+                  ),
+                )
+              ],
+            ),
+              Container(
+                margin: EdgeInsets.fromLTRB(25, 0, 25, 5), 
+                alignment: Alignment.centerLeft,
+                child: Text(mean, style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),),
+              )
+          ],),
+      );
   }
 }
