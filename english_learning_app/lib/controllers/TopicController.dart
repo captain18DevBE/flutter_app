@@ -60,7 +60,6 @@ class TopicController {
 
   Future<void> updateTopic(Topic topic) async {
     Map<String, dynamic> data = {
-      "id": topic.id,
       "title": topic.title,
       "description": topic.description,
       "create_by": topic.createBy,
@@ -152,7 +151,7 @@ class TopicController {
         cards: List<int>.from(data['cards']),
         description: data['description'],
       );
-    }).toList();
+      }).toList();
       // return querySnapshot;
     } on FirebaseException catch (error) {
       print('Error reading topics: $error');
@@ -161,13 +160,22 @@ class TopicController {
   }
 
   //Read topic is public
-  Future<QuerySnapshot<Object?>> readTopicPublic() async {
+  Future<List<Topic>> readTopicPublic() async {
     try {
       final querySnapshot = await _topicRef
         .where('is_public', isEqualTo: true)
         .get();
       
-      return Future.value(querySnapshot);
+        return querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Topic(
+          id: data['id'],
+          createBy: data['create_by'],
+          title: data['title'],
+          cards: List<int>.from(data['cards']),
+          description: data['description'],
+        );
+        }).toList();
     } on FirebaseException catch (error) {
       print('Error reading topics: $error');
       return Future.error(error);

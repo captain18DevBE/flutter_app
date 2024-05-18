@@ -22,7 +22,9 @@ class StatusLearningController {
       'topic_id' : data.topicId,
       'create_by' : data.createBy,
       'create_at' : data.createAt,
-      'cards_yet_to_be_memorized' : data.cardMomorized
+      'cards_yet_to_be_memorized' : data.cardMomorized,
+      'learned' : data.learned,
+      'memorized' : data.memorized
     };
 
     await _statusLearningRef.doc(statusLearningId.toString())
@@ -56,19 +58,29 @@ class StatusLearningController {
       });
   }
 
-  Future<QuerySnapshot<Object?>> readStatusLearningByEmailAndTopicId(String email, int topicId) async {
+  Future<List<StatusLearning>> readStatusLearningByEmailAndTopicId(String email, int topicId) async {
     try {
       final querySnapshot = await _statusLearningRef
         .where('create_by', isEqualTo: email)
         .where('topic_id', isEqualTo: topicId)
         .get();
 
-        return Future.value(querySnapshot);
+        return querySnapshot.docs.map( (doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return StatusLearning(
+              id: data['id'], 
+              topicId: data['topic_id'], 
+              createBy: data['create_by'], 
+              cardMomorized: List<int>.from(data['cards_yet_to_be_memorized']),
+              learned: List.from(data['learned']), 
+              memorized: List.from(data['memorized'])
+              );
+          }
+        ).toList();
     } on FirebaseException catch (error) {
       print('Error status learning topics: $error');
       return Future.error(error);
     }
-
   }
 
   Future<void> deleteStatusLearning(statusId) async {

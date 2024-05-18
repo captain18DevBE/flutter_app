@@ -73,11 +73,17 @@ class CardsController {
   }
 
   //Read Card by Id
-  Future<DocumentSnapshot<Object?>> readCardById(int cardId) async {
+  Future<Cards> readCardById(int cardId) async {
     try {
       final docSnapshot = await _cardsRef.doc(cardId.toString()).get();
-      return Future.value(docSnapshot);
-      // return docSnapshot;
+      // return Future.value(docSnapshot);
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      return Cards(
+        id: data['id'], 
+        topicId: data['topic_id'], 
+        term: data['term'], 
+        createByUserEmail: data['create_by'], 
+        mean: data['mean']);
     } on FirebaseException catch (error) {
       print('Failed to read card: $error');
       return Future.error(error);
