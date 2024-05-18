@@ -26,10 +26,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   UserAuthController _userAuthController = new UserAuthController();
-  User? _currentUser;
-  String? _username;
-  String? _useremail;
-  String? _urlPhotoAvatar;
+  late User _currentUser;
+  // String? _username;
+  // String? _useremail;
+  // String? _urlPhotoAvatar;
 
   int _selectedIndex = 0;
 
@@ -38,11 +38,19 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     super.initState();
 
-    _currentUser = _userAuthController.getCurrentUser()!;
+    fetchUser();
 
-    _username = _currentUser?.displayName;
-    _useremail = _currentUser?.email;
-    _urlPhotoAvatar = _currentUser?.photoURL;
+    // _username = _currentUser?.displayName;
+    // _useremail = _currentUser?.email;
+    // _urlPhotoAvatar = _currentUser?.photoURL;
+  }
+
+  void fetchUser() async {
+    User tmp = await _userAuthController.getCurrentUser() as User;
+
+    setState(() {
+      _currentUser = tmp;
+    });
   }
 
   @override
@@ -98,7 +106,7 @@ class _HomePageState extends State<HomePage> {
                       CircleAvatar(
                         radius: 40,
                         backgroundImage: NetworkImage(
-                          _urlPhotoAvatar ?? "https://drive.google.com/file/d/1S_t4qHw4dgLMmJHEfcFcPkXDX2fpwYMF/view?usp=sharing"),
+                          _currentUser.photoURL ?? "https://drive.google.com/file/d/1S_t4qHw4dgLMmJHEfcFcPkXDX2fpwYMF/view?usp=sharing"),
                         ),
                       SizedBox(
                         width: 10,
@@ -107,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            _username ?? 'TLDuyk2',
+                            _currentUser.displayName ?? 'User',
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -115,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           // Email
                           Text(
-                            _useremail ?? 'tlduy@gmail.com',
+                            _currentUser.email ?? 'tlduy@gmail.com',
                             style: const TextStyle(
                             color: Colors.white, fontSize: 15
                             ),

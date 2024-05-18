@@ -1,6 +1,10 @@
+import 'package:english_learning_app/controllers/StatusLearningController.dart';
+import 'package:english_learning_app/controllers/UserAuthController.dart';
+import 'package:english_learning_app/models/StatusLearning.dart';
 import 'package:english_learning_app/pages/folder/edit_folder.dart';
 import 'package:english_learning_app/pages/menu_topic/learning.dart';
 import 'package:english_learning_app/pages/topics/edit_topic.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:english_learning_app/controllers/TopicController.dart';
 import 'package:english_learning_app/controllers/UserController.dart';
@@ -17,16 +21,40 @@ class LibraryPage extends StatefulWidget {
 class _LibraryPageState extends State<LibraryPage> {
   List<Topic> _topics = [];
   List<Library> _folders = [];
+  StatusLearning statusLearning = new StatusLearning(id: 0, topicId: 0, createBy: 'createBy', cardMomorized: <int>[], learned: <int>[], memorized: <int>[]);
   
   final TopicController _topicController = TopicController();
   final UserController _userController = UserController();
   final LibraryController _folderController = LibraryController();
+  final StatusLearningController _statusLearningController = StatusLearningController();
+  final UserAuthController _userAuthController = new UserAuthController();
 
+  late User _user;
   @override
   void initState() {
     super.initState();
+    _fetchCurrentUser();
     _loadTopics();
     _loadFolders();
+  }
+
+  Future<void> addStatusLearning(String createBy, int topicId) async {
+    setState(() {
+      statusLearning.createBy = createBy;
+      statusLearning.topicId = topicId;
+    });
+    await _statusLearningController.addStatusLearning(statusLearning);
+
+
+  }
+
+  Future<void> _fetchCurrentUser() async {
+    User? tmp = await _userAuthController.getCurrentUser();
+    if (tmp != null) {
+      setState(() {
+        _user = tmp;
+      });
+    }
   }
 
   Future<void> _loadFolders() async {
@@ -121,6 +149,7 @@ class _LibraryPageState extends State<LibraryPage> {
             title: Text(topic.title),
             subtitle: Text('Words: ${topic.cards.length}'),
             onTap: () {
+              addStatusLearning(_user.email!, topic.id);
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => Learning(topicId: topic.id,)),

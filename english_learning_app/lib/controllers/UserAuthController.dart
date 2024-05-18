@@ -11,10 +11,10 @@ class UserAuthController {
     return user;
   }
 
-  Future<User?> signUpWithEmailPassword(String email, String password) async {
+  Future<User?> signUpWithEmailPassword(String email, String password, String userName) async {
     try {
-      UserCredential credential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-
+      UserCredential credential = await _auth.createUserWithEmailAndPassword(email: email, password: password,);
+      credential.user?.updateDisplayName(userName);
       return credential.user;
     } on FirebaseAuthException catch (e) {
       print("Some error SingUp user");

@@ -1,9 +1,13 @@
 import 'dart:math';
 
+import 'package:english_learning_app/controllers/PersonalStarCardsController.dart';
 import 'package:english_learning_app/controllers/UserAuthController.dart';
 import 'package:english_learning_app/controllers/UserController.dart';
+import 'package:english_learning_app/models/PersonalStarCards.dart';
 import 'package:english_learning_app/models/Users.dart';
 import 'package:english_learning_app/pages/main_page/home.dart';
+import 'package:english_learning_app/pages/main_page/login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -15,9 +19,9 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  UserAuthController _userAuthController = new UserAuthController();
-  UserController _userController = new UserController();
-
+  final UserAuthController _userAuthController = new UserAuthController();
+  final UserController _userController = new UserController();
+  final PersonalStarCardsController _personalStarCardsController = new PersonalStarCardsController();
 
   bool isHidden1 = true;
   bool isHidden2 = true;
@@ -107,16 +111,24 @@ class _SignUpPageState extends State<SignUpPage> {
     bool passwordValid = isPasswordValid(password);
 
     if (userNameValid && emailValid && passwordValid) {
-      final userId = await _userController.amountUserAccount() +1;
-      Users data = new Users(userId, email, userName);
-      _userController.addUser(data);
-      _userAuthController.signUpWithEmailPassword(email, password);
+      try {
+        final userId = await _userController.amountUserAccount() +1;
+        Users data = new Users(userId, email, userName);
+        _userController.addUser(data);
+        _userAuthController.signUpWithEmailPassword(email, password, userName);
 
 
-      Navigator.pop(context);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+        PersonalStarCards tmpData = new PersonalStarCards(id: 0, createBy: email);
 
-      debugPrint("Tran Le Duy" + userName + email + password + confirmPass);
+        await _personalStarCardsController.addPersonalStarCards(tmpData);
+
+        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+
+      } catch (error) {
+        print("Create new account failed");
+      } 
+      
     }
   }
   

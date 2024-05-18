@@ -1,6 +1,10 @@
 import 'dart:async';
 
 import 'package:card_swiper/card_swiper.dart';
+import 'package:english_learning_app/controllers/StatusLearningController.dart';
+import 'package:english_learning_app/controllers/TopicController.dart';
+import 'package:english_learning_app/controllers/UserAuthController.dart';
+import 'package:english_learning_app/models/StatusLearning.dart';
 import 'package:english_learning_app/pages/learn_flash_card/reusable_card.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,13 +14,19 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 
 class FlashCardPage extends StatefulWidget {
-  const FlashCardPage({super.key});
+  int topicId;
+
+  FlashCardPage({required this.topicId, super.key});
 
   @override
   State<FlashCardPage> createState() => _FlashCardPageState();
 }
 
 class _FlashCardPageState extends State<FlashCardPage> {
+  final UserAuthController _userAuthController = new UserAuthController();
+  final TopicController _topicController = new TopicController();
+  final StatusLearningController _statusLearningController = new StatusLearningController();
+
 
   bool _displayTxt = false;
   String _tutorialLeft = "Vuốt sang trái để đánh dấu ĐANG HỌC";
@@ -137,7 +147,7 @@ class _FlashCardPageState extends State<FlashCardPage> {
                   ),
                   onTap: () {
                       Navigator.push(context, 
-                        MaterialPageRoute(builder: (context) => const FlashCardPage())
+                        MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId))
                       );
                   },
                 ),
@@ -154,7 +164,7 @@ class _FlashCardPageState extends State<FlashCardPage> {
                   ),
                   onTap: () {
                       Navigator.push(context, 
-                        MaterialPageRoute(builder: (context) => const FlashCardPage())
+                        MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId,))
                       );
                   },
                 ),

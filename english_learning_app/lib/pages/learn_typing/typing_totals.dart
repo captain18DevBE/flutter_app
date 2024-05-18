@@ -203,7 +203,7 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
                             )
                           ),
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => FlashCardPage()));
+                            // Navigator.push(context, MaterialPageRoute(builder: (context) => FlashCardPage()));
                           },
                         ),
               ],

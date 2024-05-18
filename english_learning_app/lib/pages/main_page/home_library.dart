@@ -94,9 +94,9 @@ class _HomeLibraryState extends State<HomeLibrary> {
                                       child: Icon(Icons.pages_rounded, color: mainColor,)
                                     ),
                                     onTap: () {
-                                        Navigator.push(context, 
-                                          MaterialPageRoute(builder: (context) => const FlashCardPage())
-                                        );
+                                        // Navigator.push(context, 
+                                        //   MaterialPageRoute(builder: (context) => FlashCardPage(topicId: 1,))
+                                        // );
                                     },
                                   ),
                                 ),

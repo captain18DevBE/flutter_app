@@ -16,7 +16,7 @@ class StatusLearningController {
   }
 
   Future<void> addStatusLearning(StatusLearning data) async {
-    int statusLearningId = await amountStatusLearning();
+    int statusLearningId = await amountStatusLearning() + 1 ;
     final statusLearning = <String, dynamic> {
       'id' : statusLearningId,
       'topic_id' : data.topicId,

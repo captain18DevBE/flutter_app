@@ -156,7 +156,7 @@ class _LearningState extends State<Learning> {
                                     ),
                                     onTap: () {
                                         Navigator.push(context, 
-                                          MaterialPageRoute(builder: (context) => const FlashCardPage())
+                                          MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId,))
                                         );
                                     },
                                   ),
@@ -276,7 +276,7 @@ class _LearningState extends State<Learning> {
                 )
               ),
               onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => FlashCardPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId,)));
                 
               },
             ),
