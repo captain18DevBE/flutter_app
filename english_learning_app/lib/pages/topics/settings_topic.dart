@@ -1,23 +1,36 @@
 import 'package:flutter/material.dart';
-
+import 'package:english_learning_app/models/Topic.dart';
+import 'package:english_learning_app/controllers/TopicController.dart';
 
 class TopicSettingPage extends StatefulWidget {
-  final bool isPublic;
-  final ValueChanged<bool> onSettingChanged;
+  final int topicId;
 
-  const TopicSettingPage({Key? key, required this.isPublic, required this.onSettingChanged}) : super(key: key);
+  const TopicSettingPage({required this.topicId});
 
   @override
   _TopicSettingPageState createState() => _TopicSettingPageState();
 }
 
 class _TopicSettingPageState extends State<TopicSettingPage> {
-  late bool _isPublic;
+  late bool _isPublic = false;
+  late Topic _topic;
+  final TopicController _topicController = TopicController();
 
   @override
   void initState() {
     super.initState();
-    _isPublic = widget.isPublic;
+    _fetchTopic();
+  }
+
+  Future<void> _fetchTopic() async {
+    try {
+      _topic = await _topicController.getTopicById(widget.topicId);
+      setState(() {
+        _isPublic = _topic.isPublic;
+      });
+    } catch (error) {
+      print('Error fetching topic: $error');
+    }
   }
 
   @override
@@ -46,7 +59,7 @@ class _TopicSettingPageState extends State<TopicSettingPage> {
               'Publicity',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(width: 10,),
+            SizedBox(width: 10),
             DropdownButton<bool>(
               value: _isPublic,
               items: [
@@ -62,7 +75,7 @@ class _TopicSettingPageState extends State<TopicSettingPage> {
               onChanged: (bool? value) {
                 setState(() {
                   _isPublic = value!;
-                  widget.onSettingChanged(_isPublic);
+                  _updateTopicIsPublic(value);
                 });
               },
             ),
@@ -70,5 +83,23 @@ class _TopicSettingPageState extends State<TopicSettingPage> {
         ),
       ),
     );
+  }
+
+  void _updateTopicIsPublic(bool isPublic) async {
+    try {
+      _topic.isPublic = isPublic;
+      await _topicController.updateTopic(_topic);
+      _showSnackBar(isPublic);
+    } catch (error) {
+      print('Error updating topic: $error');
+    }
+  }
+
+  void _showSnackBar(bool isPublic) {
+    final snackBar = SnackBar(
+      content: Text(isPublic ? 'Topic set to Public' : 'Topic set to Private'),
+      duration: Duration(seconds: 2),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

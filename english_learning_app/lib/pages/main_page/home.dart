@@ -26,35 +26,28 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   UserAuthController _userAuthController = new UserAuthController();
-  late User _currentUser;
+  //late User _currentUser;
   // String? _username;
   // String? _useremail;
   // String? _urlPhotoAvatar;
-
   int _selectedIndex = 0;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    fetchUser();
+  }
 
     // _username = _currentUser?.displayName;
     // _useremail = _currentUser?.email;
     // _urlPhotoAvatar = _currentUser?.photoURL;
-  }
+  
 
-  void fetchUser() async {
-    User tmp = await _userAuthController.getCurrentUser() as User;
 
-    setState(() {
-      _currentUser = tmp;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    User? _currentUser = FirebaseAuth.instance.currentUser;
     final List<Widget> _pages = [
       HomeLibrary(),
       ExploredPage(),
@@ -106,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                       CircleAvatar(
                         radius: 40,
                         backgroundImage: NetworkImage(
-                          _currentUser.photoURL ?? "https://drive.google.com/file/d/1S_t4qHw4dgLMmJHEfcFcPkXDX2fpwYMF/view?usp=sharing"),
+                          _currentUser?.photoURL ?? "https://drive.google.com/file/d/1S_t4qHw4dgLMmJHEfcFcPkXDX2fpwYMF/view?usp=sharing"),
                         ),
                       SizedBox(
                         width: 10,
@@ -115,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            _currentUser.displayName ?? 'User',
+                            _currentUser?.displayName ?? 'User',
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -123,7 +116,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           // Email
                           Text(
-                            _currentUser.email ?? 'tlduy@gmail.com',
+                            _currentUser?.email ?? 'tlduy@gmail.com',
                             style: const TextStyle(
                             color: Colors.white, fontSize: 15
                             ),

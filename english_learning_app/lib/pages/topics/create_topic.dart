@@ -22,7 +22,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   List<Map<String, String>> _wordDefinitions = [];
   bool _isAddingDescription = false;
   bool _isLoading = false;
-  bool _isPublic = false;
   final TopicController _topicController = TopicController();
   final CardsController _cardsController = CardsController();
   final UserController _userController = UserController();
@@ -30,56 +29,45 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'CREATE TOPIC',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        elevation: 5,
-        backgroundColor: Colors.blue[700],
-        centerTitle: true,
-        shadowColor: Colors.black,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TopicSettingPage(
-                    isPublic: _isPublic,
-                    onSettingChanged: (isPublic) {
-                      setState(() {
-                        _isPublic = isPublic;
-                      });
-                    },
-                  ),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.upload_file),
-            onPressed: _importCSV,
-          ),
-        ],
+  appBar: AppBar(
+    iconTheme: const IconThemeData(color: Colors.white),
+    title: const Text(
+      'CREATE TOPIC',
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: <Color>[
-            Color(0xFF1976D2),
-            Color(0xFF42A5F5),
-            Color(0xFF90CAF9),
-            Colors.white
-          ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-        ),
-        child: Padding(
+    ),
+    elevation: 5,
+    backgroundColor: Colors.blue[700],
+    centerTitle: true,
+    shadowColor: Colors.black,
+    actions: [
+      IconButton(
+        icon: Icon(Icons.upload_file),
+        onPressed: _importCSV,
+      ),
+    ],
+  ),
+  body: Container(
+    decoration: const BoxDecoration(
+      gradient: LinearGradient(
+        colors: <Color>[
+          Color(0xFF1976D2),
+          Color(0xFF42A5F5),
+          Color(0xFF90CAF9),
+          Colors.white
+        ], 
+        begin: Alignment.topCenter, 
+        end: Alignment.bottomCenter,
+      ),
+    ),
+    child: Stack(
+      children: [
+        SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildTextField(
                 controller: _topicNameController,
@@ -132,51 +120,61 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
               const SizedBox(height: 16),
               _isLoading
                   ? CircularProgressIndicator()
-                  : Expanded(
-                      child: ListView.builder(
-                        itemCount: _wordDefinitions.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == _wordDefinitions.length) {
-                            return AddWordDefinitionRow(
-                                onAdd: addWordDefinition);
-                          } else {
-                            final wordDefinition = _wordDefinitions[index];
-                            return WordDefinitionRow(
-                              wordDefinition: wordDefinition,
-                              onDelete: () => removeWordDefinition(index),
-                              onUpdate: (word, definition) {
-                                setState(() {
-                                  _wordDefinitions[index] = {
-                                    'word': word,
-                                    'definition': definition
-                                  };
-                                });
-                              },
-                            );
-                          }
-                        },
-                      ),
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: _wordDefinitions.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == _wordDefinitions.length) {
+                          return AddWordDefinitionRow(onAdd: addWordDefinition);
+                        } else {
+                          final wordDefinition = _wordDefinitions[index];
+                          return WordDefinitionRow(
+                            wordDefinition: wordDefinition,
+                            onDelete: () => removeWordDefinition(index),
+                            onUpdate: (word, definition) {
+                              setState(() {
+                                _wordDefinitions[index] = {
+                                  'word': word,
+                                  'definition': definition
+                                };
+                              });
+                            },
+                          );
+                        }
+                      },
                     ),
-              if (_wordDefinitions.length > 0)
-                ElevatedButton.icon(
-                  onPressed: _createTopic,
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.green)),
-                  icon: const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                  ),
-                  label: const Text(
-                    'Create',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
             ],
           ),
         ),
-      ),
-    );
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _wordDefinitions.length > 0
+                ? ElevatedButton.icon(
+                    onPressed: _createTopic,
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                    ),
+                    icon: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Create',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  )
+                : Container(),
+          ),
+        ),
+      ],
+    ),
+  ),
+);
+
+
   }
 
   TextField _buildTextField(
