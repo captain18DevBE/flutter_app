@@ -44,6 +44,8 @@ class _MultipleTestState extends State<MultipleTest> {
   late List<Cards> _unMemoriedCards;
   late List<Cards> _memoried;
 
+  late int _statisticId;
+
   late int _amountUnMemoriedCard;
   late int _amountMemoricard;
 
@@ -66,6 +68,7 @@ class _MultipleTestState extends State<MultipleTest> {
     fetchListCards(widget.topicId);
     fetchStatusLearning();
     getListUnMemoried();
+    getNextStatisticId();
 
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
@@ -87,6 +90,13 @@ class _MultipleTestState extends State<MultipleTest> {
     // TODO: implement dispose
     super.dispose();
     _pageController.dispose();
+  }
+
+  Future<void> getNextStatisticId() async {
+    int result = await _statisticController.amountStatistic() + 1;
+    setState(() {
+      _statisticId =  result;
+    });
   }
 
   Future<void> getListUnMemoried() async {
@@ -170,8 +180,6 @@ class _MultipleTestState extends State<MultipleTest> {
     }
 
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -345,13 +353,14 @@ class _MultipleTestState extends State<MultipleTest> {
       if (_questionSelected >= _unMemoriedCards.length-1) {
         loadTotalTestPage();
         Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTotalTest( point: 0.5, topicId: widget.topicId, statusLearningId: widget.statusLearningId, amountMemoricard: _countAnswerSuccess, amountUnMemoriedCard: _amountUnMemoriedCard,)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTotalTest( point: 0.5, topicId: widget.topicId, statusLearningId: widget.statusLearningId, amountMemoricard: _countAnswerSuccess, amountUnMemoriedCard: _amountUnMemoriedCard, statisticId: _statisticId,)));
       }
       if (_questionSelected < _unMemoriedCards.length && _questionSelected <= _unMemoriedCards.length-1) {
         _fourAnswer = randomFourAnswer(_lstAnswer);
         _questionSelected += 1;
       }
     });
+
     showDialog(
       context: context,
       builder: (BuildContext context) {

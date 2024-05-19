@@ -272,7 +272,7 @@ Future<void> getListUnMemoried() async {
                             )
                           ),
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTest()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTest(topicId: widget.topicId, statusLearningId: widget.statusLearningId,)));
                           },
                         ),
 

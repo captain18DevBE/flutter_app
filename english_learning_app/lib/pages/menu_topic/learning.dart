@@ -404,7 +404,7 @@ class _LearningState extends State<Learning> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => TypingTest()),
+                        MaterialPageRoute(builder: (context) => TypingTest(topicId: widget.topicId, statusLearningId: widget.statusLearningId,)),
                       );
                     },
                   ),
@@ -443,7 +443,7 @@ class _LearningState extends State<Learning> {
   );}
   
   Widget detailCards(int index) {
-String team = _cards[index].term;
+    String team = _cards[index].term;
     String mean = _cards[index].mean;
     return Container(
       margin: EdgeInsets.fromLTRB(25, 10, 25, 0),

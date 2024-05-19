@@ -86,16 +86,16 @@ class StatisticController {
   Future<List<Statistic>> readStatisticByTopicId(int topicId) async {
     try {
       final querySnapshot = await _statisticRef
-        .where('topic_id', isEqualTo: topicId)
+        .where('topic', isEqualTo: topicId)
         .get();
 
         return querySnapshot.docs.map( (doc) {
             final data = doc.data() as Map<String, dynamic>;
             return Statistic(
               id: data['id'], 
-              topicId: data['topic_id'], 
+              topicId: data['topic'], 
               createBy: data['create_by'], 
-              percenRate: 0.0, 
+              percenRate: data['percen_rate'], 
               numOfStudy: data['number_of_study'], 
               );
           }

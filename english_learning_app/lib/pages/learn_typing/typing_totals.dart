@@ -9,6 +9,7 @@ import 'package:english_learning_app/models/Statistic.dart';
 import 'package:english_learning_app/models/StatusLearning.dart';
 import 'package:english_learning_app/models/Topic.dart';
 import 'package:english_learning_app/pages/learn_flash_card/flashcard.dart';
+import 'package:english_learning_app/pages/learn_typing/ranking.dart';
 import 'package:english_learning_app/pages/learn_typing/typing_test.dart';
 import 'package:english_learning_app/pages/menu_topic/action_topics.dart';
 import 'package:english_learning_app/pages/menu_topic/learning.dart';
@@ -23,9 +24,10 @@ class TypingTotalTest extends StatefulWidget {
   int statusLearningId;
   int amountUnMemoriedCard;
   int amountMemoricard;
+  int statisticId;
   final double point;
 
-  TypingTotalTest({required this.topicId, required this.statusLearningId, required this.amountMemoricard, required this.amountUnMemoriedCard , required this.point,super.key});
+  TypingTotalTest({required this.statisticId, required this.topicId, required this.statusLearningId, required this.amountMemoricard, required this.amountUnMemoriedCard , required this.point,super.key});
 
   @override
   State<TypingTotalTest> createState() => _TypingTotalTestState();
@@ -175,18 +177,18 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
           children: [
             Container(
             child: 
-            LinearPercentIndicator(
+              LinearPercentIndicator(
 
-              animation: true,
-              animationDuration: 1000,
-              lineHeight: 8,
-              percent: 0.5,
+                animation: true,
+                animationDuration: 1000,
+                lineHeight: 8,
+                percent: 0.5,
 
-              progressColor: mainColor,
-              backgroundColor: Colors.grey,
-              
+                progressColor: mainColor,
+                backgroundColor: Colors.grey,
+                
+              ),
             ),
-          ),
 
           Container(
             margin: EdgeInsets.fromLTRB(20, 8, 0, 20),
@@ -295,12 +297,13 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
                             ),
                             child: Center(
                               child: 
-                                Text("Làm bài kiểm tra mới", textAlign:  TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
+                                Text("New Test", textAlign:  TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
 
                             )
                           ),
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTest()));
+                            Navigator.pop(context);
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTest(topicId: widget.topicId, statusLearningId: widget.statusLearningId,)));
                           },
                         ),
 
@@ -318,12 +321,20 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
                             ),
                             child: Center(
                               child: 
-                                Text("Ôn luyện bằng chế độ học", textAlign:  TextAlign.center,style: TextStyle(color:mainColor, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
+                                Text("View Ranking", textAlign:  TextAlign.center,style: TextStyle(color:mainColor, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
 
                             )
                           ),
                           onTap: () {
-                            // Navigator.push(context, MaterialPageRoute(builder: (context) => FlashCardPage()));
+                            Navigator.push(context, MaterialPageRoute(builder: 
+                            (context) => Ranking(
+                              topicId: widget.topicId, 
+                              statusLearningId: widget.statusLearningId, 
+                              amountMemoricard: widget.amountMemoricard, 
+                              amountUnMemoriedCard: widget.amountUnMemoriedCard, 
+                              statisticId: widget.statisticId, 
+                              point: widget.point,
+                            )));
                           },
                         ),
               ],
