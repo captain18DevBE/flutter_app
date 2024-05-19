@@ -129,7 +129,7 @@ Future<void> getListUnMemoried() async {
           IconButton(
             icon: Icon(Icons.more_horiz),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder:(context) => ActionTopic()));
+              Navigator.push(context, MaterialPageRoute(builder:(context) => ActionTopic(widget.topicId)));
             }
           ), 
         ],
