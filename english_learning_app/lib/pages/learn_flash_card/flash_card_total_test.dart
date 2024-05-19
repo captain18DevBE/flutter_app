@@ -17,7 +17,6 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 class FlashCardTotalTest extends StatefulWidget {
   int topicId;
   int statusLearningId;
-
   FlashCardTotalTest({required this.statusLearningId, required this.topicId, super.key});
 
   @override
@@ -129,7 +128,7 @@ Future<void> getListUnMemoried() async {
           IconButton(
             icon: Icon(Icons.more_horiz),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder:(context) => ActionTopic(widget.topicId)));
+              Navigator.push(context, MaterialPageRoute(builder:(context) => ActionTopic(topicId: widget.topicId)));
             }
           ), 
         ],

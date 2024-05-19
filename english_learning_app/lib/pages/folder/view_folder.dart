@@ -221,12 +221,12 @@ class _ViewFolderPageState extends State<ViewFolderPage> {
 Widget _buildTopicCard(Topic topic) {
   return GestureDetector(
     onTap: () {
-      StatusLearning temp = fetchStatusLearning(topic.id);
+      // StatusLearning temp = fetchStatusLearning(topic.id);
       
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Learning(statusLearningId: , topicId: topic.id),
+          builder: (context) => Learning(statusLearningId: 1, topicId: topic.id),
         ),
       );
     },

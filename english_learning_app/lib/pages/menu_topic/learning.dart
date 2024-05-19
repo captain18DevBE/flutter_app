@@ -137,449 +137,313 @@ class _LearningState extends State<Learning> {
         shadowColor: Colors.black,
       ),
       backgroundColor: Colors.grey.shade100,
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+      body: _isLoading ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              child: Center(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: 450,
-                      height: 300,
-                      child: PageView.builder(
-                        controller: _pageController,
-                        itemCount: _cards.length,
-                        itemBuilder: (context, index) {
-                          final cardData = _cards[index];
-                          return Stack(
-                            children: [
-                              FlipCard(
-                                direction: FlipDirection.VERTICAL,
-                                front: ReusableCard(
-                                    text: cardData.term
-                                    ),
-                                back: ReusableCard(
-                                    text: cardData.mean
-                                    ),
-                                
-                                ),
+          child: Container(
+            width: double.infinity,
+            child: Column(
+            children: [
 
-                                Positioned(
-                                  bottom: 50,
-                                  right: 50,
-                                  child: GestureDetector(
-                                    child: Container(
-                                      child: Icon(Icons.pages_rounded, color: mainColor,)
-                                    ),
-                                    onTap: () {
-                                        Navigator.push(context, 
-                                          MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId, statusLearningId: widget.statusLearningId,))
-                                        );
-                                    },
-                                  ),
-                                ),
-                              
-                            ],);
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      child: Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List<Widget>.generate(
-                            5,
-                            (index) => Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              child: InkWell(
-                                onTap: () {
-                                  _pageController.animateToPage(
-                                    index,
-                                    duration: Duration(microseconds: 300),
-                                    curve: Curves.ease,
-                                  );
-                                },
-                                child: CircleAvatar(
-                                  radius: 3,
-                                  backgroundColor: index == _activePage ? mainColor : Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            margin: EdgeInsets.fromLTRB(20, 10, 0, 10),
-                            child: Text(
-                              "Title: " + _topic.title,
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19, color: mainColor),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          alignment: Alignment.centerRight,
-                          margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(40),
-                            border: Border.all(
-                              color: mainColor, // Border color
-                              width: 2, // Border width
-                            ),
-                          ),
-                          child: Center(
-                            child: Icon(Icons.save, color: mainColor),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(20, 20, 20, 5),
-                      child: Row(children: [
-                        CircleAvatar(
-                          backgroundImage: NetworkImage(_user.photoURL ?? "https://drive.google.com/file/d/1S_t4qHw4dgLMmJHEfcFcPkXDX2fpwYMF/view?usp=sharing"),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(_user.email ?? "emailuser@gmail.com"),
-                        ),
-                        Container(
-                          width: 40,
-                        ),
-                        Text("Số lượng thẻ: " + _cards.length.toString())
-                      ],),
-                    ),
-
-                  
-
-                  
-                    ]),
-                  
-              ),
-        
-              
-        
-              Container(
-                alignment: Alignment.centerLeft,
-                margin: EdgeInsets.fromLTRB(20, 10, 0, 5),
-                child: Text("Tutorials Study set"),
-              ),
-
-              Container(
-                margin: EdgeInsets.fromLTRB(20, 5, 20, 20),
-                
-                child: Column(
-                  children: [
-                  GestureDetector(
-              child: Container(
-                height: 50,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  gradient: LinearGradient(colors: <Color>[
-                    Color(0xFF42A5F5),
-                    Color.fromARGB(255, 117, 193, 255),
-                  ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+            SizedBox(
+              width: 450,
+              height: 300,
+              child: PageView.builder(
+              controller: _pageController,
+              itemCount: _cards.length,
+              itemBuilder: (context, index) {
+              final cardData = _cards[index];
+              return Stack(
+              children: [
+              FlipCard(
+                direction: FlipDirection.VERTICAL,
+                front: ReusableCard(
+                text: cardData.term
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(20, 20, 20, 5),
-                      child: Column(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(_user.photoURL ??
-                                "https://drive.google.com/file/d/1S_t4qHw4dgLMmJHEfcFcPkXDX2fpwYMF/view?usp=sharing"),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(_user.email ?? "emailuser@gmail.com"),
-                          ),
-                          Container(
-                            width: 40,
-                          ),
-                          Text("Số lượng thẻ: " + _cards.length.toString())
-                        ],
-                      ),
-                    ),
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      margin: EdgeInsets.fromLTRB(20, 10, 0, 5),
-                      child: Text("Mô tả học phần"),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(20, 5, 20, 20),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            child: Container(
-                              height: 50,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                gradient: LinearGradient(
-                                  colors: <Color>[
-                                    Color(0xFF42A5F5),
-                                    Color.fromARGB(255, 117, 193, 255),
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 20,
-                                  ),
-                                  Icon(Icons.crop_landscape_rounded, color: Colors.white),
-                                  Container(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    "Thẻ ghi nhớ",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId)),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            child: Container(
-                              height: 50,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                gradient: LinearGradient(
-                                  colors: <Color>[
-                                    Color(0xFF42A5F5),
-                                    Color.fromARGB(255, 117, 193, 255),
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 20,
-                                  ),
-                                  Icon(Icons.book_outlined, color: Colors.white),
-                                  Container(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    "Học",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => MultipleTest()),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            child: Container(
-                              height: 50,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                gradient: LinearGradient(
-                                  colors: <Color>[
-                                    Color(0xFF42A5F5),
-                                    Color.fromARGB(255, 117, 193, 255),
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 20,
-                                  ),
-                                  Icon(Icons.text_snippet, color: Colors.white),
-                                  Container(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    "Kiểm tra",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => TypingTest()),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(25, 5, 20, 0),
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Thuật ngữ",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                    ),
-                    Container(
-                      height: 200,
-                      width: double.infinity,
-                      child: ListView.builder(
-                        itemCount: _cards.length,
-                        itemBuilder: ((context, index) {
-                          return detailCards(index);
-                        }),
-                      ),
-                    ),
-                    Text("Flash Card", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
-                  ],
-                )
-              ),
-              onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId, statusLearningId: widget.statusLearningId,)));
-                
-              },
-            ),
-                      ],),
-                  ),
-            Container(
-                margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                
-                child: Column(
-                  children: [
-                  GestureDetector(
-              child: Container(
-                height: 50,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  gradient: LinearGradient(colors: <Color>[
-                    Color(0xFF42A5F5),
-                    Color.fromARGB(255, 117, 193, 255),
-                  ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+                back: ReusableCard(
+                text: cardData.mean
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 20,
-                    ),
-                    Icon(Icons.book_outlined, color: Colors.white),
-                    Container(
-                      width: 10,
-                    ),
-                    Text("Learn", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
-                  ],
-                )
-              ),
-              onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => MultipleTest(topicId: widget.topicId, statusLearningId: widget.statusLearningId,)));
-                
-              },
-            ),
-                      ],),
-                  ),
 
-            Container(
-              margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
-              
-              child: Column(
-                children: [
-                GestureDetector(
+              ),
+
+              Positioned(
+                bottom: 50,
+                right: 50,
+                child: GestureDetector(
                 child: Container(
-                  height: 50,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    gradient: LinearGradient(colors: <Color>[
-                      Color(0xFF42A5F5),
-                      Color.fromARGB(255, 117, 193, 255),
-                    ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 20,
-                      ),
-                      Icon(Icons.text_snippet, color: Colors.white),
-                      Container(
-                        width: 10,
-                      ),
-                      Text("Test", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
-                    ],
-                  )
+                  child: Icon(Icons.pages_rounded, color: mainColor,)
                 ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTest()));
+                    Navigator.push(context, 
+                      MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId, statusLearningId: widget.statusLearningId,))
+                    );
                 },
-            ),
+                ),
+                ),
 
-            ],),
-            ),
-
-            Container(
-              margin: EdgeInsets.fromLTRB(25, 5, 20, 0),
-              alignment: Alignment.centerLeft,
-              child: Text("Vocabulary", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
-            ),
-
-            Container(
-              height: 200,
-              width: double.infinity,
-              child: ListView.builder(
-                itemCount: _cards.length,
-                itemBuilder: ((context, index) {
-                  
-                return detailCards(index);
-                
-                
-                })
+              ],);
+              },
               ),
             ),
-    );
-  }
 
+            Positioned(
+              child: Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List<Widget>.generate(
+                    5,
+                    (index) => Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 5),
+                      child: InkWell(
+                        onTap: () {
+                          _pageController.animateToPage(
+                            index,
+                            duration: Duration(microseconds: 300),
+                            curve: Curves.ease,
+                          );
+                        },
+                        child: CircleAvatar(
+                          radius: 3,
+                          backgroundColor: index == _activePage ? mainColor : Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(20, 10, 0, 10),
+                    child: Text(
+                      "Title: " + _topic.title,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19, color: mainColor),
+                    ),
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.centerRight,
+                  margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(40),
+                    border: Border.all(
+                      color: mainColor, // Border color
+                      width: 2, // Border width
+                    ),
+                  ),
+                  child: Center(
+                    child: Icon(Icons.save, color: mainColor),
+                  ),
+                ),
+            ],),
+
+
+            Container(
+              margin: EdgeInsets.fromLTRB(20, 20, 20, 5),
+              child: Row(children: [
+                CircleAvatar(
+                  backgroundImage: NetworkImage(_user.photoURL ?? "https://drive.google.com/file/d/1S_t4qHw4dgLMmJHEfcFcPkXDX2fpwYMF/view?usp=sharing"),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(_user.email ?? "emailuser@gmail.com"),
+                ),
+                Container(
+                  width: 40,
+                ),
+                Text("Amount Card: " + _cards.length.toString())
+              ],),
+            ),
+
+            Container(
+              alignment: Alignment.centerLeft,
+              margin: EdgeInsets.fromLTRB(20, 10, 0, 5),
+              child: Text("Tutorials Study set"),
+            ),
+
+            Container(
+              margin: EdgeInsets.fromLTRB(20, 5, 20, 20),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    child: Container(
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        gradient: LinearGradient(
+                          colors: <Color>[
+                            Color(0xFF42A5F5),
+                            Color.fromARGB(255, 117, 193, 255),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20,
+                          ),
+                          Icon(Icons.crop_landscape_rounded, color: Colors.white),
+                          Container(
+                            width: 10,
+                          ),
+                          Text(
+                            "Flash cards",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId, statusLearningId: widget.statusLearningId,)),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            
+            Container(
+              margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    child: Container(
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        gradient: LinearGradient(
+                          colors: <Color>[
+                            Color(0xFF42A5F5),
+                            Color.fromARGB(255, 117, 193, 255),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20,
+                          ),
+                          Icon(Icons.book_outlined, color: Colors.white),
+                          Container(
+                            width: 10,
+                          ),
+                          Text(
+                            "Lean multiple choice",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MultipleTest(topicId: widget.topicId, statusLearningId: widget.statusLearningId,)),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    child: Container(
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        gradient: LinearGradient(
+                          colors: <Color>[
+                            Color(0xFF42A5F5),
+                            Color.fromARGB(255, 117, 193, 255),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20,
+                          ),
+                          Icon(Icons.text_snippet, color: Colors.white),
+                          Container(
+                            width: 10,
+                          ),
+                          Text(
+                            "Test Typing",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => TypingTest()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+
+
+          Container(
+            margin: EdgeInsets.fromLTRB(25, 5, 20, 0),
+            alignment: Alignment.centerLeft,
+            child: Text("Vocabulary", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+          ),
+
+          Container(
+            height: 400,
+            width: double.infinity,
+            child: ListView.builder(
+              itemCount: _cards.length,
+              itemBuilder: ((context, index) {
+                
+              return detailCards(index);
+              
+              })
+            ),
+          ),
+
+
+        ]),
+      )
+    )
+
+
+
+  );}
+  
   Widget detailCards(int index) {
-    String team = _cards[index].term;
+String team = _cards[index].term;
     String mean = _cards[index].mean;
     return Container(
       margin: EdgeInsets.fromLTRB(25, 10, 25, 0),
@@ -606,7 +470,7 @@ class _LearningState extends State<Learning> {
               ),
               GestureDetector(
                 onTap: () {
-                  flutterTts.speak(team);
+                  // flutterTts.speak(team);
                 },
                 child: Icon(
                   Icons.volume_up,
@@ -634,7 +498,6 @@ class _LearningState extends State<Learning> {
             ),
           )
         ],
-      ),
-    );
+      ),);
   }
 }
