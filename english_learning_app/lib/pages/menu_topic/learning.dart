@@ -33,6 +33,7 @@ class _LearningState extends State<Learning> {
   final CardsController _cardsController = new CardsController();
   final PageController _pageController = new PageController();
   final StatusLearningController _statusLearningController = new StatusLearningController();
+  FlutterTts flutterTts = FlutterTts();
   
 
   late User _user;
@@ -119,10 +120,11 @@ class _LearningState extends State<Learning> {
           );
         }),
         actions: <Widget>[
+          if (_user.email == _topic.createBy)
           IconButton(
             icon: Icon(Icons.more_horiz),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ActionTopic(topicId: _topic.id)));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ActionTopic(topicId: _topic.id, viewerEmail: _user.email!)));
             },
           ),
         ],
@@ -470,7 +472,7 @@ class _LearningState extends State<Learning> {
               ),
               GestureDetector(
                 onTap: () {
-                  // flutterTts.speak(team);
+                  flutterTts.speak(team);
                 },
                 child: Icon(
                   Icons.volume_up,

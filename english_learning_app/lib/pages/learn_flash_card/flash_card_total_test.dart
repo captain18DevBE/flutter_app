@@ -10,6 +10,7 @@ import 'package:english_learning_app/models/Topic.dart';
 import 'package:english_learning_app/pages/learn_typing/typing_test.dart';
 import 'package:english_learning_app/pages/menu_topic/action_topics.dart';
 import 'package:english_learning_app/pages/setup_root/all_constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -17,6 +18,7 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 class FlashCardTotalTest extends StatefulWidget {
   int topicId;
   int statusLearningId;
+
   FlashCardTotalTest({required this.statusLearningId, required this.topicId, super.key});
 
   @override
@@ -37,6 +39,8 @@ class _FlashCardTotalTestState extends State<FlashCardTotalTest> {
   late List<Cards> _unMemoriedCards;
   late List<Cards> _memoried;
   
+  late User _user;
+  
   bool _showWidgetSwiper = false;
 
   @override
@@ -44,6 +48,7 @@ class _FlashCardTotalTestState extends State<FlashCardTotalTest> {
     // TODO: implement initState
     super.initState();
 
+    fetchCurrentUser();
     fetchStatusLearning();
     fetchTopic();
     fetchListCards();
@@ -56,6 +61,18 @@ class _FlashCardTotalTestState extends State<FlashCardTotalTest> {
     });
   }
 
+Future<void> fetchCurrentUser() async {
+    try {
+      User? current = await _userAuthController.getCurrentUser();
+      setState(() {
+        if (current != null) {
+          _user = current;
+        }
+      });
+    } catch (error) {
+      print("Have problem loading user ${error}");
+    }
+  }
 
 Future<void> getListUnMemoried() async {
     
@@ -128,7 +145,7 @@ Future<void> getListUnMemoried() async {
           IconButton(
             icon: Icon(Icons.more_horiz),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder:(context) => ActionTopic(topicId: widget.topicId)));
+              Navigator.push(context, MaterialPageRoute(builder:(context) => ActionTopic(topicId: widget.topicId, viewerEmail: _user.email!,)));
             }
           ), 
         ],

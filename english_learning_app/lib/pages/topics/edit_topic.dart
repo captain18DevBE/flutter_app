@@ -52,7 +52,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
       final cards = await _cardsController.readCardsByTopicId(topicId);
       final starCardsSnapshot = await _personalStarCardsController.readPersonalStarCardByEmail(_userEmail!);
 
-      if (starCardsSnapshot.docs.isNotEmpty) {
+      /* if (starCardsSnapshot.docs.isNotEmpty) {
         final starCardDoc = starCardsSnapshot.docs.first;
         _personalStarCards = PersonalStarCards(
           id: starCardDoc['id'],
@@ -68,7 +68,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
         );
         _personalStarCards?.lstStarCards = {};
         await _personalStarCardsController.addPersonalStarCards(_personalStarCards!);
-      }
+      } */
 
       setState(() {
         _topicNameController.text = topic.title;
@@ -77,7 +77,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
             'id': card.id.toString(),
             'word': card.term,
             'definition': card.mean,
-            'isStarred': _personalStarCards!.lstStarCards.containsKey(card.id) ? 'true' : 'false',
+            'isStarred': /*_personalStarCards!.lstStarCards.containsKey(card.id) ?*/ 'false',
           };
         }).toList();
       });
@@ -137,7 +137,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
         cards: cardIds,
       );
 
-      await _topicController.updateTopic(topic);
+      await _topicController.updateTopicById(topic);
 
       // Update the star cards
       await _personalStarCardsController.updatePersonalStarCards(_personalStarCards!);
@@ -308,7 +308,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
 
     topic.cards = cardList;
 
-    await _topicController.updateTopic(topic);
+    await _topicController.updateTopicById(topic);
 
     setState(() {
       _wordDefinitions.add({
@@ -412,7 +412,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
                 List<int> cardList = topic.cards.toList();
                 cardList.remove(id);
                 topic.cards = cardList;
-                await _topicController.updateTopic(topic);
+                await _topicController.updateTopicById(topic);
                 await _cardsController.deleteCard(id);
                 setState(() {
                   _wordDefinitions.removeAt(index);
@@ -431,24 +431,35 @@ class _EditTopicPageState extends State<EditTopicPage> {
   }
 
   void toggleStarStatus(int index) async {
-    setState(() {
-      _wordDefinitions[index]['isStarred'] =
-          (_wordDefinitions[index]['isStarred'] == 'true') ? 'false' : 'true';
-    });
+  int cardId = int.parse(_wordDefinitions[index]['id']!);
+  String userEmail = _userEmail!;
 
-    int cardId = int.parse(_wordDefinitions[index]['id']!);
+  bool isStarred = _wordDefinitions[index]['isStarred'] == 'true';
 
-    if (_wordDefinitions[index]['isStarred'] == 'true') {
+  setState(() {
+    _wordDefinitions[index]['isStarred'] = (!isStarred).toString();
+  });
+
+  /* /* try {
+    if (isStarred) {
+      _personalStarCards!.lstStarCards.remove(cardId);
+    } else {
       _personalStarCards!.lstStarCards[cardId] = {
         'word': _wordDefinitions[index]['word']!,
         'definition': _wordDefinitions[index]['definition']!,
       };
-    } else {
-      _personalStarCards!.lstStarCards.remove(cardId);
-    }
+    } */
 
     await _personalStarCardsController.updatePersonalStarCards(_personalStarCards!);
-  }
+  } catch (error) {
+    print('Error toggling star status: $error');
+    setState(() {
+      _wordDefinitions[index]['isStarred'] = isStarred.toString();
+    });
+  } */
+}
+
+
 }
 
 class WordDefinitionRow extends StatelessWidget {
@@ -494,13 +505,13 @@ class WordDefinitionRow extends StatelessWidget {
               onPressed: onEdit,
               icon: const Icon(Icons.edit),
             ),
-            IconButton(
+            /* IconButton(
               onPressed: onMarkStar,
               icon: Icon(
                 isStarred ? Icons.star : Icons.star_border,
                 color: isStarred ? Colors.yellow : null,
               ),
-            ),
+            ), */
           ],
         ),
       ),

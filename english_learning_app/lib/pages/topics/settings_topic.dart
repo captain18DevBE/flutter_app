@@ -88,7 +88,7 @@ class _TopicSettingPageState extends State<TopicSettingPage> {
   void _updateTopicIsPublic(bool isPublic) async {
     try {
       _topic.isPublic = isPublic;
-      await _topicController.updateTopic(_topic);
+      await _topicController.updateTopicById(_topic);
       _showSnackBar(isPublic);
     } catch (error) {
       print('Error updating topic: $error');
