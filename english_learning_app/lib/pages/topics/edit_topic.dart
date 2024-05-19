@@ -6,6 +6,9 @@ import 'package:english_learning_app/controllers/CardsController.dart';
 import 'package:english_learning_app/models/Cards.dart';
 import 'package:english_learning_app/models/Topic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:english_learning_app/controllers/PersonalStarCardsController.dart';
+import 'package:english_learning_app/models/PersonalStarCards.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EditTopicPage extends StatefulWidget {
   final int topicId;
@@ -21,9 +24,13 @@ class _EditTopicPageState extends State<EditTopicPage> {
   List<Map<String, String>> _wordDefinitions = [];
   FlutterTts flutterTts = FlutterTts();
 
+  final PersonalStarCardsController _personalStarCardsController = PersonalStarCardsController();
   final TopicController _topicController = TopicController();
   bool _isLoading = false;
   final CardsController _cardsController = CardsController();
+
+  String? _userEmail;
+  PersonalStarCards? _personalStarCards;
 
   @override
   void initState() {
@@ -34,8 +41,35 @@ class _EditTopicPageState extends State<EditTopicPage> {
 
   Future<void> _loadTopicData(int topicId) async {
     try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        _showSnackbar('Error: No logged in user');
+        return;
+      }
+      _userEmail = currentUser.email!;
+      
       final topic = await _topicController.getTopicById(topicId);
       final cards = await _cardsController.readCardsByTopicId(topicId);
+      final starCardsSnapshot = await _personalStarCardsController.readPersonalStarCardByEmail(_userEmail!);
+
+      if (starCardsSnapshot.docs.isNotEmpty) {
+        final starCardDoc = starCardsSnapshot.docs.first;
+        _personalStarCards = PersonalStarCards(
+          id: starCardDoc['id'],
+          createBy: starCardDoc['create_by'],
+        );
+        _personalStarCards?.lstStarCards = Map<int, dynamic>.from(starCardDoc['cards']);
+      } else {
+        // Create new PersonalStarCards for the user if not exist
+        int starCardId = await _personalStarCardsController.amountPersonalStarCard() + 1;
+        _personalStarCards = PersonalStarCards(
+          id: starCardId,
+          createBy: _userEmail!,
+        );
+        _personalStarCards?.lstStarCards = {};
+        await _personalStarCardsController.addPersonalStarCards(_personalStarCards!);
+      }
+
       setState(() {
         _topicNameController.text = topic.title;
         _wordDefinitions = cards.map((card) {
@@ -43,7 +77,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
             'id': card.id.toString(),
             'word': card.term,
             'definition': card.mean,
-            'isStarred': 'false', // Placeholder, you may need to adjust this
+            'isStarred': _personalStarCards!.lstStarCards.containsKey(card.id) ? 'true' : 'false',
           };
         }).toList();
       });
@@ -77,16 +111,6 @@ class _EditTopicPageState extends State<EditTopicPage> {
       _isLoading = true;
     });
 
-    User? currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      _showSnackbar('Error: No logged in user');
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-    String userEmail = currentUser.email!;
-
     try {
       List<int> cardIds = [];
       for (var cardData in _wordDefinitions) {
@@ -95,7 +119,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
           topicId: widget.topicId,
           term: cardData['word']!,
           mean: cardData['definition']!,
-          createByUserEmail: userEmail,
+          createByUserEmail: _userEmail!,
           urlPhoto: '',
         );
 
@@ -109,11 +133,14 @@ class _EditTopicPageState extends State<EditTopicPage> {
         id: widget.topicId,
         title: _topicNameController.text,
         description: '', // Add description field if needed
-        createBy: userEmail, // Add createBy field if needed
+        createBy: _userEmail!, // Add createBy field if needed
         cards: cardIds,
       );
 
       await _topicController.updateTopic(topic);
+
+      // Update the star cards
+      await _personalStarCardsController.updatePersonalStarCards(_personalStarCards!);
 
       print('Changes saved successfully');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -215,14 +242,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
                       ),
                       onListen: () => _speak(wordDefinition['word']!),
                       isStarred: wordDefinition['isStarred'] == 'true',
-                      onMarkStar: () {
-                        setState(() {
-                          _wordDefinitions[index]['isStarred'] =
-                              (wordDefinition['isStarred'] == 'true')
-                                  ? 'false'
-                                  : 'true';
-                        });
-                      },
+                      onMarkStar: () => toggleStarStatus(index),
                     );
                   }
                 },
@@ -258,7 +278,6 @@ class _EditTopicPageState extends State<EditTopicPage> {
   }
 
   void addWordDefinition() async {
-
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       _showSnackbar('Error: No logged in user');
@@ -271,17 +290,17 @@ class _EditTopicPageState extends State<EditTopicPage> {
 
     int cardId = await _cardsController.amountCards() + 1;
     Cards card = Cards(
-                id: cardId,
-                topicId: widget.topicId,
-                term: 'English Word',
-                mean: 'Vietnamese Word',
-                createByUserEmail: userEmail,
-                urlPhoto: '',
-              );
+      id: cardId,
+      topicId: widget.topicId,
+      term: 'English Word',
+      mean: 'Vietnamese Word',
+      createByUserEmail: userEmail,
+      urlPhoto: '',
+    );
 
     await _cardsController.addCard(card);
 
-     Topic topic = await _topicController.getTopicById(widget.topicId);
+    Topic topic = await _topicController.getTopicById(widget.topicId);
 
     List<int> cardList = topic.cards.toList();
 
@@ -409,6 +428,26 @@ class _EditTopicPageState extends State<EditTopicPage> {
         ],
       ),
     );
+  }
+
+  void toggleStarStatus(int index) async {
+    setState(() {
+      _wordDefinitions[index]['isStarred'] =
+          (_wordDefinitions[index]['isStarred'] == 'true') ? 'false' : 'true';
+    });
+
+    int cardId = int.parse(_wordDefinitions[index]['id']!);
+
+    if (_wordDefinitions[index]['isStarred'] == 'true') {
+      _personalStarCards!.lstStarCards[cardId] = {
+        'word': _wordDefinitions[index]['word']!,
+        'definition': _wordDefinitions[index]['definition']!,
+      };
+    } else {
+      _personalStarCards!.lstStarCards.remove(cardId);
+    }
+
+    await _personalStarCardsController.updatePersonalStarCards(_personalStarCards!);
   }
 }
 

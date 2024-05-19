@@ -1,4 +1,8 @@
+import 'package:english_learning_app/controllers/StatusLearningController.dart';
+import 'package:english_learning_app/controllers/UserAuthController.dart';
+import 'package:english_learning_app/models/StatusLearning.dart';
 import 'package:english_learning_app/pages/folder/edit_folder.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:english_learning_app/controllers/LibraryController.dart';
 import 'package:english_learning_app/controllers/TopicController.dart';
@@ -19,14 +23,40 @@ class ViewFolderPage extends StatefulWidget {
 class _ViewFolderPageState extends State<ViewFolderPage> {
   final _libraryController = LibraryController();
   final _topicController = TopicController();
+  final StatusLearningController _statusLearningController = StatusLearningController();
   late Future<Library> _folderFuture;
   List<Topic> _topics = [];
   bool _isLoading = false;
+  late List<StatusLearning> _statusLearning;
+  final UserAuthController _userAuthController = new UserAuthController();
+   late User _user;
 
   @override
   void initState() {
     super.initState();
     _folderFuture = _loadFolder();
+  }
+
+  Future<void> fetchCurrentUser() async {
+    try {
+      User? current = await _userAuthController.getCurrentUser();
+      setState(() {
+        if (current != null) {
+          _user = current;
+        }
+      });
+    } catch (error) {
+      print("Have problem loading user ${error}");
+    }
+  }
+
+  Future<List<StatusLearning>> fetchStatusLearning(int id) async {
+    List<StatusLearning> tmp = await _statusLearningController.readStatusLearningByEmailAndTopicId(_user.email!, id);
+
+    setState(() {
+      _statusLearning = tmp;
+    });
+    return tmp;
   }
 
   Future<Library> _loadFolder() async {
@@ -191,10 +221,12 @@ class _ViewFolderPageState extends State<ViewFolderPage> {
 Widget _buildTopicCard(Topic topic) {
   return GestureDetector(
     onTap: () {
+      StatusLearning temp = fetchStatusLearning(topic.id);
+      
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Learning(topicId: topic.id),
+          builder: (context) => Learning(statusLearningId: , topicId: topic.id),
         ),
       );
     },
