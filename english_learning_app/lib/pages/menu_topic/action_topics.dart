@@ -1,13 +1,61 @@
 
-  import 'package:english_learning_app/pages/main_page/library.dart';
+  import 'package:english_learning_app/models/Topic.dart';
+import 'package:english_learning_app/pages/main_page/library.dart';
   import 'package:english_learning_app/pages/setup_root/all_constants.dart';
   import 'package:english_learning_app/pages/topics/edit_topic.dart';
+  import 'package:english_learning_app/controllers/TopicController.dart';
+import 'package:firebase_auth/firebase_auth.dart';
   import 'package:flutter/material.dart';
 
-  class ActionTopic extends StatelessWidget {
+  class ActionTopic extends StatefulWidget {
     final int topicId;
+    final String viewerEmail;
 
-    const ActionTopic({required this.topicId});
+    const ActionTopic({required this.topicId, required this.viewerEmail});
+
+    
+
+  @override
+  State<ActionTopic> createState() => _ActionTopicState();
+}
+
+class _ActionTopicState extends State<ActionTopic> {
+    TopicController _topicController = TopicController();
+    Topic? topic;
+    String _userEmail = "";
+
+    @override
+  void initState() {
+    super.initState();
+    _getData(widget.topicId);
+  }
+
+    void _showSnackbar(String message) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    scaffoldMessenger.hideCurrentSnackBar();
+    scaffoldMessenger.showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+    Future<void> _getData(int topicId) async {
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        _showSnackbar('Error: No logged in user');
+        return;
+      }
+      _userEmail = currentUser.email!;
+      _showSnackbar(_userEmail);
+      
+      topic = await _topicController.getTopicById(widget.topicId);
+    } catch (error) {
+      // Handle error
+      print('Error loading topic data: $error');
+    }
+  }
+
+  
 
     @override
     Widget build(BuildContext context) {
@@ -43,7 +91,7 @@
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditTopicPage(topicId: this.topicId)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditTopicPage(topicId: this.widget.topicId)));
                 },
               ),
               Container(
@@ -252,4 +300,4 @@
         ),
       );
     }
-  }
+}

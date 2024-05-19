@@ -253,7 +253,7 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
 
     //update topic
     newTopic.cards = cardIds;
-    await _topicController.updateTopic(newTopic);
+    await _topicController.updateTopicById(newTopic);
 
     setState(() {
       _isLoading = false;
