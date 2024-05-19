@@ -11,4 +11,16 @@ class Cards {
 
   Cards({required this.id,required this.topicId, required this.term, required this.createByUserEmail, required this.mean, this.urlPhoto});
 
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'topicId': topicId,
+      'term': term,
+      'mean': mean,
+      'createByUserEmail': createByUserEmail,
+      'createAt': createAt,
+      'urlPhoto': urlPhoto,
+    };
+  }
+
 }

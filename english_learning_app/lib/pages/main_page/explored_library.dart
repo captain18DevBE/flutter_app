@@ -18,12 +18,21 @@ class _ExploredPageState extends State<ExploredPage> {
   late List<Topic> _allTopics;
   late List<Topic> _filteredTopics;
 
+  bool _showWidget = false;
+
   @override
   void initState() {
     super.initState();
     _filteredTopics = [];
     _allTopics = [];
     fetchTopics();
+
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        _showWidget = true;
+      });
+    });
+
   }
 
   Future<void> fetchTopics() async {
@@ -104,9 +113,9 @@ class _ExploredPageState extends State<ExploredPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Các học phần mới", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                Text("List all new Study set", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 GestureDetector(
-                  child: Text("Xem tất cả", style: TextStyle(fontWeight: FontWeight.bold, color: mainColor)),
+                  child: Text("View alls", style: TextStyle(fontWeight: FontWeight.bold, color: mainColor)),
                 ),
               ],
             ),

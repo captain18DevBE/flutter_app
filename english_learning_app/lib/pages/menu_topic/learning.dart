@@ -1,8 +1,10 @@
 import 'package:english_learning_app/controllers/CardsController.dart';
+import 'package:english_learning_app/controllers/PersonalStarCardsController.dart';
 import 'package:english_learning_app/controllers/StatusLearningController.dart';
 import 'package:english_learning_app/controllers/TopicController.dart';
 import 'package:english_learning_app/controllers/UserAuthController.dart';
 import 'package:english_learning_app/models/Cards.dart';
+import 'package:english_learning_app/models/PersonalStarCards.dart';
 import 'package:english_learning_app/models/StatusLearning.dart';
 import 'package:english_learning_app/models/Topic.dart';
 import 'package:english_learning_app/pages/learn_multiple_choise/multiple_test.dart';
@@ -33,16 +35,21 @@ class _LearningState extends State<Learning> {
   final CardsController _cardsController = new CardsController();
   final PageController _pageController = new PageController();
   final StatusLearningController _statusLearningController = new StatusLearningController();
+  final PersonalStarCardsController _personalStarCardsController = new PersonalStarCardsController();
+
   FlutterTts flutterTts = FlutterTts();
   
+  late List<Cards> _lstStarCards;
 
   late User _user;
   late Topic _topic;
   late List<Cards> _cards;
   late int _activePage = 2;
   late StatusLearning _statusLearning;
+  late PersonalStarCards _personalStarCards;
 
   bool _isLoading = false;
+  bool _showWidget = false;
 
   @override
   void initState() {
@@ -51,12 +58,27 @@ class _LearningState extends State<Learning> {
     fetchTopic(widget.topicId);
     fetchListCards(widget.topicId);
     fetchStatusLearning();
+    fetchPersonalStarCard();
+    Future.delayed(const Duration(seconds: 2), () {
+    setState(() {
+      _showWidget = true;
+    });
+    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> fetchPersonalStarCard() async {
+    PersonalStarCards tmp = await _personalStarCardsController.readPersonalStarCardByEmail(_user.email!);
+    setState(() {
+      _personalStarCards = tmp;
+    });
+
+    print("Personal Star Card: "+ tmp.id.toString());
   }
 
   Future<void> fetchStatusLearning() async {
@@ -482,10 +504,13 @@ class _LearningState extends State<Learning> {
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+
+                  },
                   child: Icon(
                     Icons.star,
                     color: Colors.grey,
+
                   ),
                 ),
               ),

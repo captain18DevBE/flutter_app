@@ -56,19 +56,31 @@ class PersonalStarCardsController {
   
 
   // Read Personal Star Card by email User
-  Future<QuerySnapshot<Object?>> readPersonalStarCardByEmail(String email) async {
+Future<PersonalStarCards> readPersonalStarCardByEmail(String email) async {
+  try {
+    final querySnapshot = await _personalStarCardRef
+      .where('create_by', isEqualTo: email)
+      .get();
 
-    try {
-      final querySnapshot = await _personalStarCardRef
-        .where('create_by', isEqualTo: email)
-        .get();
+    // Check if there are any documents
+    if (querySnapshot.docs.isNotEmpty) {
+      final docSnapshot = querySnapshot.docs.first;
 
-      return Future.value(querySnapshot);
-    } on FirebaseException catch (error) {
-      print('Error reading personal star card: $error');
-      return Future.error(error);
+      // Convert the document data to PersonalStarCards
+      final mapData = docSnapshot.data() as Map<String, dynamic>;
+    
+      return PersonalStarCards(
+        id: mapData['id'], 
+        createBy: mapData['create_by'], 
+        //lstStarCards: mapData['cards']
+        );
+    } else {
+      return PersonalStarCards(id: 0, createBy: email,); // Return empty object if no documents found
     }
+  } on FirebaseException catch (error) {
+    print('Error reading personal star card: $error');
+    return Future.error(error);
   }
-
+}
   // Delete Card
 }

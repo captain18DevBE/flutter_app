@@ -505,13 +505,13 @@ class WordDefinitionRow extends StatelessWidget {
               onPressed: onEdit,
               icon: const Icon(Icons.edit),
             ),
-            /* IconButton(
+             IconButton(
               onPressed: onMarkStar,
               icon: Icon(
                 isStarred ? Icons.star : Icons.star_border,
                 color: isStarred ? Colors.yellow : null,
               ),
-            ), */
+            ),
           ],
         ),
       ),
