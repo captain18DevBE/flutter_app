@@ -22,7 +22,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
   List<Map<String, String>> _wordDefinitions = [];
   bool _isAddingDescription = false;
   bool _isLoading = false;
-  bool _isPublic = false;
   final TopicController _topicController = TopicController();
   final CardsController _cardsController = CardsController();
   final UserController _userController = UserController();
@@ -44,24 +43,6 @@ class _CreateTopicPageState extends State<CreateTopicPage> {
     centerTitle: true,
     shadowColor: Colors.black,
     actions: [
-      IconButton(
-        icon: Icon(Icons.settings),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TopicSettingPage(
-                isPublic: _isPublic,
-                onSettingChanged: (isPublic) {
-                  setState(() {
-                    _isPublic = isPublic;
-                  });
-                },
-              ),
-            ),
-          );
-        },
-      ),
       IconButton(
         icon: Icon(Icons.upload_file),
         onPressed: _importCSV,

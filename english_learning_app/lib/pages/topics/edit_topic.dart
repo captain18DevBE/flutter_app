@@ -20,7 +20,6 @@ class _EditTopicPageState extends State<EditTopicPage> {
   final _topicNameController = TextEditingController();
   List<Map<String, String>> _wordDefinitions = [];
   FlutterTts flutterTts = FlutterTts();
-  bool _isPublic = false;
 
   final TopicController _topicController = TopicController();
   bool _isLoading = false;
@@ -151,14 +150,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TopicSettingPage(
-                isPublic: _isPublic,
-                onSettingChanged: (isPublic) {
-                  setState(() {
-                    _isPublic = isPublic;
-                  });
-                },
-              ),
+              builder: (context) => TopicSettingPage(topicId: widget.topicId),
             ),
           );
         },
@@ -328,7 +320,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
               setState(() {});
               Navigator.pop(context);
             },
-            child: const Text('Done'),
+            child: const Text('Save'),
           ),
         ],
       ),
