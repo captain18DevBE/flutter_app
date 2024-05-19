@@ -117,7 +117,7 @@ class _TypingTestState extends State<TypingTest> {
                   )
                 ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTotalTest(point: _point)));
+                  //Navigator.push(context, MaterialPageRoute(builder: (context) => TypingTotalTest(point: _point)));
                 },
             ),
 

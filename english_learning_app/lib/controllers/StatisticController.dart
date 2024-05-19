@@ -38,6 +38,17 @@ class StatisticController {
       });
   }
 
+  Future<bool> checkExist(String email, int topicId) async {
+    final QuerySnapshot result = await _statisticRef
+      .where('create_by', isEqualTo: email)
+      .where('topic_id', isEqualTo: topicId)
+      .get();
+    final List<DocumentSnapshot> documents = result.docs;
+    return (documents.isNotEmpty);
+  }
+
+
+
   Future<void> updateStatistic(Statistic data) async {
     final statistic = <String, dynamic> {
       'create_at' : data.createAt,
@@ -70,5 +81,76 @@ class StatisticController {
         print("Failed to delete statistic: $error");
         return Future.error(error);
       });
+  }
+
+  Future<List<Statistic>> readStatisticByTopicId(int topicId) async {
+    try {
+      final querySnapshot = await _statisticRef
+        .where('topic_id', isEqualTo: topicId)
+        .get();
+
+        return querySnapshot.docs.map( (doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return Statistic(
+              id: data['id'], 
+              topicId: data['topic_id'], 
+              createBy: data['create_by'], 
+              percenRate: 0.0, 
+              numOfStudy: data['number_of_study'], 
+              );
+          }
+        ).toList();
+    } on FirebaseException catch (error) {
+      print('Error statistic topics: $error');
+      return Future.error(error);
+    }
+  }
+
+  Future<List<Statistic>> readStatisticByEmailAndTopicId(String email, int topicId) async {
+    try {
+      final querySnapshot = await _statisticRef
+        .where('create_by', isEqualTo: email)
+        .where('topic_id', isEqualTo: topicId)
+        .get();
+
+        return querySnapshot.docs.map( (doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return Statistic(
+              id: data['id'], 
+              topicId: data['topic_id'], 
+              createBy: data['create_by'], 
+              percenRate: data['percen_rate'], 
+              numOfStudy: data['number_of_study'],
+              );
+          }
+        ).toList();
+    } on FirebaseException catch (error) {
+      print('Error statistic topics: $error');
+      return Future.error(error);
+    }
+  }
+
+  Future<Statistic> readStatisticById(int statusId) async {
+    try {
+      final docSnapshot = await _statisticRef.doc(statusId.toString()).get();
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+
+        return Statistic(
+              id: data['id'], 
+              topicId: data['topic_id'], 
+              createBy: data['create_by'], 
+              percenRate: 0.0, 
+              numOfStudy: data['number_of_study'], 
+            );
+      } 
+      else {
+        throw Exception('Topic not found');
+      }
+
+    } on FirebaseException catch (error) {
+      print('Failed to fetch topic: $error');
+      throw Exception('Failed to fetch topic');
+    }
   }
 }

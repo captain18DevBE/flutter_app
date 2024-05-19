@@ -15,6 +15,15 @@ class StatusLearningController {
     return documents.length;
   }
 
+  Future<bool> checkExist(String email, int topicId) async {
+    final QuerySnapshot result = await _statusLearningRef
+      .where('create_by', isEqualTo: email)
+      .where('topic_id', isEqualTo: topicId)
+      .get();
+    final List<DocumentSnapshot> documents = result.docs;
+    return (documents.length>0);
+  }
+
   Future<void> addStatusLearning(StatusLearning data) async {
     int statusLearningId = await amountStatusLearning() + 1 ;
     final statusLearning = <String, dynamic> {
@@ -41,8 +50,8 @@ class StatusLearningController {
 
   Future<void> updateStatusLearning(StatusLearning data) async {
     final statusLearning = <String, dynamic> {
-      'create_at' : data.createAt,
-      'cards_yet_to_be_memorized' : data.cardMomorized
+      'cards_yet_to_be_memorized' : data.cardMomorized,
+      'memorized' : data.memorized
     };
 
     await _statusLearningRef
@@ -57,6 +66,31 @@ class StatusLearningController {
         return Future.error(error);
       });
   }
+
+  Future<StatusLearning> readStatusLearningById(int statusId) async {
+    try {
+      final docSnapshot = await _statusLearningRef.doc(statusId.toString()).get();
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+
+        return StatusLearning(
+              id: data['id'], 
+              topicId: data['topic_id'], 
+              createBy: data['create_by'], 
+              cardMomorized: List<int>.from(data['cards_yet_to_be_memorized']),
+              learned: List.from(data['learned']), 
+              memorized: List.from(data['memorized'])
+              );
+      } 
+      else {
+        throw Exception('Topic not found');
+      }
+
+    } on FirebaseException catch (error) {
+      print('Failed to fetch topic: $error');
+      throw Exception('Failed to fetch topic');
+    }
+  } 
 
   Future<List<StatusLearning>> readStatusLearningByEmailAndTopicId(String email, int topicId) async {
     try {

@@ -1,77 +1,64 @@
+import 'dart:async';
 
 import 'package:english_learning_app/controllers/CardsController.dart';
-import 'package:english_learning_app/controllers/StatisticController.dart';
 import 'package:english_learning_app/controllers/StatusLearningController.dart';
 import 'package:english_learning_app/controllers/TopicController.dart';
 import 'package:english_learning_app/controllers/UserAuthController.dart';
 import 'package:english_learning_app/models/Cards.dart';
-import 'package:english_learning_app/models/Statistic.dart';
 import 'package:english_learning_app/models/StatusLearning.dart';
 import 'package:english_learning_app/models/Topic.dart';
-import 'package:english_learning_app/pages/learn_flash_card/flashcard.dart';
 import 'package:english_learning_app/pages/learn_typing/typing_test.dart';
 import 'package:english_learning_app/pages/menu_topic/action_topics.dart';
-import 'package:english_learning_app/pages/menu_topic/learning.dart';
 import 'package:english_learning_app/pages/setup_root/all_constants.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:percent_indicator/percent_indicator.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 
-class TypingTotalTest extends StatefulWidget {
+class FlashCardTotalTest extends StatefulWidget {
   int topicId;
   int statusLearningId;
-  int amountUnMemoriedCard;
-  int amountMemoricard;
-  final double point;
 
-  TypingTotalTest({required this.topicId, required this.statusLearningId, required this.amountMemoricard, required this.amountUnMemoriedCard , required this.point,super.key});
+  FlashCardTotalTest({required this.statusLearningId, required this.topicId, super.key});
 
   @override
-  State<TypingTotalTest> createState() => _TypingTotalTestState();
+  State<FlashCardTotalTest> createState() => _FlashCardTotalTestState();
 }
 
-class _TypingTotalTestState extends State<TypingTotalTest> {
-  
+class _FlashCardTotalTestState extends State<FlashCardTotalTest> {
+
   final UserAuthController _userAuthController = new UserAuthController();
   final TopicController _topicController = new TopicController();
-  final CardsController _cardsController = new CardsController();
-  final PageController _pageController = new PageController();
   final StatusLearningController _statusLearningController = new StatusLearningController();
-  final StatisticController _statisticController = new StatisticController();
+  final CardsController _cardsController = new CardsController();
 
-  late User _user;
+  late StatusLearning _statusLearning;
   late Topic _topic;
   late List<Cards> _cards;
-  late StatusLearning _statusLearning;
 
   late List<Cards> _unMemoriedCards;
   late List<Cards> _memoried;
-
-  bool _showWidget = false;
-  Statistic? _statistic;
-
-
+  
+  bool _showWidgetSwiper = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    fetchCurrentUser();
-    fetchTopic(widget.topicId);
-    fetchListCards(widget.topicId);
     fetchStatusLearning();
+    fetchTopic();
+    fetchListCards();
     getListUnMemoried();
 
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
-        _showWidget = true;
+        _showWidgetSwiper = true;
       });
     });
   }
 
-  Future<void> getListUnMemoried() async {
+
+Future<void> getListUnMemoried() async {
     
     await Future.delayed(const Duration(seconds: 1));
     List<Cards> unMemorieds = [];
@@ -87,35 +74,26 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
       }
     }
 
-    //unMemorieds.add(finishLearn);
     setState(() {
        _unMemoriedCards = unMemorieds;
        _memoried = memorieds;
     });
   }
 
-  Future<void> fetchStatusLearning() async {
-    StatusLearning tmp = await _statusLearningController.readStatusLearningById(widget.statusLearningId);
-
-    setState(() {
-      _statusLearning = tmp;
-    });
-  }
-
-  Future<void> fetchCurrentUser() async {
+  Future<void> fetchListCards() async {
     try {
-      User? current = await _userAuthController.getCurrentUser();
+      List<Cards> cards = await _cardsController.readCardsByTopicId(widget.topicId);
       setState(() {
-        if (current != null) {
-          _user = current;
-        }
+        _cards = cards;
+        print("card: " + cards.length.toString());
       });
+      
     } catch (error) {
-      print("Have problem load user ${error}");
+      print('Failed to fetch list cards: $error');
     }
   }
 
-  Future<void> fetchTopic(int topicId) async {
+  Future<void> fetchTopic() async {
     try {
       var topic = (await _topicController.getTopicById(widget.topicId)) as Topic;
       setState(() {
@@ -127,16 +105,11 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
     }
   }
 
-  Future<void> fetchListCards(int topicId) async {
-    try {
-      List<Cards> cards = await _cardsController.readCardsByTopicId(topicId);
-      setState(() {
-        _cards = cards;
-      });
-
-    } catch (error) {
-      print('Failed to fetch list cards: $error');
-    }
+  Future<void> fetchStatusLearning() async {
+    StatusLearning tmp = await _statusLearningController.readStatusLearningById(widget.statusLearningId);
+    setState(() {
+      _statusLearning = tmp;
+    });
 
   }
   @override
@@ -160,7 +133,7 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
             }
           ), 
         ],
-        title: Text(_showWidget ? (widget.amountMemoricard.toString() + "/" + widget.amountUnMemoriedCard.toString()) : "1/10", style: TextStyle(color: Colors.white),),
+        title: Text("1/10", style: TextStyle(color: Colors.white),),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 5,
         backgroundColor: Colors.blue[700],
@@ -197,11 +170,11 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
                 Container(
                   height: 25,
                 ),
-                Text("You're making progress!", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
+                Text("Bạn đang tiến bộ!", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
                 Container(
                   height: 10,
                 ),
-                Text("Your total test:", style: TextStyle(fontSize: 19, fontStyle: FontStyle.italic),),
+                Text("Kết quả của bạn:", style: TextStyle(fontSize: 19, fontStyle: FontStyle.italic),),
                 Container(
                   height: 25,
                 ),
@@ -213,10 +186,10 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
         
                       radius: 45,
                       lineWidth: 10,
-                      percent: widget.point,
+                      percent: _unMemoriedCards.length/_cards.length,
                       progressColor: mainColor,
                       circularStrokeCap: CircularStrokeCap.round,
-                      center: Text((widget.point * 100).toString() + "%", style: TextStyle(color: mainColor),),
+                      center: Text("40%", style: TextStyle(color: mainColor),),
 
                     ),
 
@@ -227,7 +200,7 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
                             children: [
                               Container(
                                 margin: EdgeInsets.fromLTRB(40, 0, 60, 10),
-                                child: Text("True   : ", style: TextStyle(color: Colors.blue, fontSize: 20),),
+                                child: Text("Đúng : ", style: TextStyle(color: Colors.blue, fontSize: 20),),
                               ),
 
                               Container(
@@ -243,7 +216,7 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
                                 ),
                                 ),
                                 child: Center(
-                                  child: Text(_showWidget ? widget.amountMemoricard.toString() : "0", style: TextStyle(color: Colors.blue, fontSize: 18),),
+                                  child: Text("0", style: TextStyle(color: Colors.blue, fontSize: 18),),
                               ),
                               ),
                             ],
@@ -254,7 +227,7 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
                             children: [
                               Container(
                                 margin: EdgeInsets.fromLTRB(40, 0, 60, 10),
-                                child: Text( "Failed: ", style: TextStyle(color: Colors.red, fontSize: 20),),
+                                child: Text("Sai    : ", style: TextStyle(color: Colors.red, fontSize: 20),),
                               ),
 
                               Container(
@@ -270,7 +243,7 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
                                 ),
                                 ),
                                 child: Center(
-                                  child: Text(_showWidget ? (widget.amountUnMemoriedCard - widget.amountMemoricard).toString() : "0", style: TextStyle(color: Colors.red, fontSize: 18),),
+                                  child: Text("0", style: TextStyle(color: Colors.red, fontSize: 18),),
                               ),
                               ),
                             ],
@@ -367,5 +340,9 @@ class _TypingTotalTestState extends State<TypingTotalTest> {
         ],),
       ),
     );
+
+  
   }
+
+  
 }

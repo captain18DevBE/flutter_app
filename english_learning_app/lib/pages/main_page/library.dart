@@ -38,13 +38,24 @@ class _LibraryPageState extends State<LibraryPage> {
     _loadFolders();
   }
 
+  Future<StatusLearning> readStatusLearningByTopic(int topicId) async {
+    List<StatusLearning> docs = await _statusLearningController.readStatusLearningByEmailAndTopicId(_user.email!, topicId); 
+    StatusLearning result = docs[0];
+
+    return result;
+  }
+
+  Future<bool> _checkExistStatusLearning(String create_by, int topicId) async {
+    var tmpStatus = await _statusLearningController.checkExist(create_by, topicId);
+    return tmpStatus;
+  }
+
   Future<void> addStatusLearning(String createBy, int topicId) async {
     setState(() {
       statusLearning.createBy = createBy;
       statusLearning.topicId = topicId;
     });
     await _statusLearningController.addStatusLearning(statusLearning);
-
 
   }
 
@@ -149,12 +160,9 @@ class _LibraryPageState extends State<LibraryPage> {
             title: Text(topic.title),
             subtitle: Text('Words: ${topic.cards.length}'),
             onTap: () {
-              addStatusLearning(_user.email!, topic.id);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Learning(topicId: topic.id,)),
-              );
+              loadLearningPage(_user.email!, topic);
             },
+
           ),
         );
       },
@@ -193,5 +201,27 @@ class _LibraryPageState extends State<LibraryPage> {
         );
       },
     );
+  }
+
+  void loadLearningPage(String email, Topic topic) async {
+    if (! (await _checkExistStatusLearning(email, topic.id))) {
+
+      setState(() {
+        statusLearning.cardMomorized = topic.cards;
+      });
+      
+      addStatusLearning(email, topic.id);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Learning(statusLearningId: 2, topicId: topic.id,)),
+      );
+    } else {
+      StatusLearning status = await readStatusLearningByTopic(topic.id);
+      Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Learning(statusLearningId:status.id, topicId: topic.id,)),
+      );
+    }
+
   }
 }

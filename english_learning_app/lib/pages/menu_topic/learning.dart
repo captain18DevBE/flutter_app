@@ -1,9 +1,9 @@
-import 'dart:ffi';
-
 import 'package:english_learning_app/controllers/CardsController.dart';
+import 'package:english_learning_app/controllers/StatusLearningController.dart';
 import 'package:english_learning_app/controllers/TopicController.dart';
 import 'package:english_learning_app/controllers/UserAuthController.dart';
 import 'package:english_learning_app/models/Cards.dart';
+import 'package:english_learning_app/models/StatusLearning.dart';
 import 'package:english_learning_app/models/Topic.dart';
 import 'package:english_learning_app/pages/learn_multiple_choise/multiple_test.dart';
 import 'package:english_learning_app/pages/learn_typing/typing_test.dart';
@@ -19,7 +19,8 @@ import 'package:flutter/widgets.dart';
 
 class Learning extends StatefulWidget {
   int topicId;
-  Learning({required this.topicId, super.key});
+  int statusLearningId;
+  Learning({required this.statusLearningId, required this.topicId, super.key});
 
   @override
   State<Learning> createState() => _LearningState();
@@ -30,10 +31,14 @@ class _LearningState extends State<Learning> {
   final TopicController _topicController = new TopicController();
   final CardsController _cardsController = new CardsController();
   final PageController _pageController = new PageController();
+  final StatusLearningController _statusLearningController = new StatusLearningController();
+  
+
   late User _user;
   late Topic _topic;
   late List<Cards> _cards;
   late int _activePage = 2;
+  late StatusLearning _statusLearning;
 
 
   @override
@@ -43,6 +48,7 @@ class _LearningState extends State<Learning> {
     fetchCurrentUser();
     fetchTopic(widget.topicId);
     fetchListCards(widget.topicId);
+    fetchStatusLearning();
   }
 
   @override
@@ -50,6 +56,14 @@ class _LearningState extends State<Learning> {
     // TODO: implement dispose
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> fetchStatusLearning() async {
+    StatusLearning tmp = await _statusLearningController.readStatusLearningById(widget.statusLearningId);
+
+    setState(() {
+      _statusLearning = tmp;
+    });
   }
 
   Future<void> fetchCurrentUser() async {
@@ -156,7 +170,7 @@ class _LearningState extends State<Learning> {
                                     ),
                                     onTap: () {
                                         Navigator.push(context, 
-                                          MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId,))
+                                          MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId, statusLearningId: widget.statusLearningId,))
                                         );
                                     },
                                   ),
@@ -244,7 +258,7 @@ class _LearningState extends State<Learning> {
               Container(
                 alignment: Alignment.centerLeft,
                 margin: EdgeInsets.fromLTRB(20, 10, 0, 5),
-                child: Text("Mô tả học phần"),
+                child: Text("Tutorials Study set"),
               ),
 
               Container(
@@ -271,12 +285,12 @@ class _LearningState extends State<Learning> {
                     Container(
                       width: 10,
                     ),
-                    Text("Thẻ ghi nhớ", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
+                    Text("Flash Card", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
                   ],
                 )
               ),
               onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId,)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => FlashCardPage(topicId: widget.topicId, statusLearningId: widget.statusLearningId,)));
                 
               },
             ),
@@ -306,12 +320,12 @@ class _LearningState extends State<Learning> {
                     Container(
                       width: 10,
                     ),
-                    Text("Học", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
+                    Text("Learn", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
                   ],
                 )
               ),
               onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => MultipleTest()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => MultipleTest(topicId: widget.topicId, statusLearningId: widget.statusLearningId,)));
                 
               },
             ),
@@ -342,7 +356,7 @@ class _LearningState extends State<Learning> {
                       Container(
                         width: 10,
                       ),
-                      Text("Kiểm tra", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
+                      Text("Test", style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold, ),)
                     ],
                   )
                 ),
@@ -357,7 +371,7 @@ class _LearningState extends State<Learning> {
             Container(
               margin: EdgeInsets.fromLTRB(25, 5, 20, 0),
               alignment: Alignment.centerLeft,
-              child: Text("Thuật ngữ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+              child: Text("Vocabulary", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
             ),
 
             Container(

@@ -145,7 +145,7 @@ class _HomeLibraryState extends State<HomeLibrary> {
                   
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Learning(topicId: 2,)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Learning(statusLearningId: 2, topicId: 2,)));
                       },
                       child: Container(
                         // padding: const EdgeInsets.all(8.0),
@@ -222,7 +222,7 @@ class _HomeLibraryState extends State<HomeLibrary> {
                   
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Learning(topicId: 2,)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Learning(statusLearningId: 2, topicId: 2,)));
                       },
                       child: Container(
                         // padding: const EdgeInsets.all(8.0),
