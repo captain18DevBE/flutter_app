@@ -135,56 +135,59 @@ class _EditTopicPageState extends State<EditTopicPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'EDIT TOPIC',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TopicSettingPage(
-                    isPublic: _isPublic,
-                    onSettingChanged: (isPublic) {
-                      setState(() {
-                        _isPublic = isPublic;
-                      });
-                    },
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-        elevation: 5,
-        backgroundColor: Colors.blue[700],
-        centerTitle: true,
-        shadowColor: Colors.black,
+  appBar: AppBar(
+    iconTheme: const IconThemeData(color: Colors.white),
+    title: const Text(
+      'EDIT TOPIC',
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: <Color>[
-              Color(0xFF1976D2),
-              Color(0xFF42A5F5),
-              Color(0xFF90CAF9),
-              Colors.white,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Padding(
+    ),
+    actions: [
+      IconButton(
+        icon: Icon(Icons.settings),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TopicSettingPage(
+                isPublic: _isPublic,
+                onSettingChanged: (isPublic) {
+                  setState(() {
+                    _isPublic = isPublic;
+                  });
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    ],
+    elevation: 5,
+    backgroundColor: Colors.blue[700],
+    centerTitle: true,
+    shadowColor: Colors.black,
+  ),
+  body: Container(
+    decoration: const BoxDecoration(
+      gradient: LinearGradient(
+        colors: <Color>[
+          Color(0xFF1976D2),
+          Color(0xFF42A5F5),
+          Color(0xFF90CAF9),
+          Colors.white,
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ),
+    ),
+    child: Stack(
+      children: [
+        SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -201,52 +204,65 @@ class _EditTopicPageState extends State<EditTopicPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _wordDefinitions.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == _wordDefinitions.length) {
-                      return AddWordDefinitionRow(onAdd: addWordDefinition);
-                    } else {
-                      final wordDefinition = _wordDefinitions[index];
-                      return WordDefinitionRow(
-                        word: wordDefinition['word']!,
-                        definition: wordDefinition['definition']!,
-                        onEdit: () => showWordEditDialog(context, index,
-                            int.parse(wordDefinition['id'].toString())),
-                        onListen: () => _speak(wordDefinition['word']!),
-                        isStarred: wordDefinition['isStarred'] == 'true',
-                        onMarkStar: () {
-                          setState(() {
-                            _wordDefinitions[index]['isStarred'] =
-                                (wordDefinition['isStarred'] == 'true')
-                                    ? 'false'
-                                    : 'true';
-                          });
-                        },
-                      );
-                    }
-                  },
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _saveChanges;
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: _wordDefinitions.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == _wordDefinitions.length) {
+                    return AddWordDefinitionRow(onAdd: addWordDefinition);
+                  } else {
+                    final wordDefinition = _wordDefinitions[index];
+                    return WordDefinitionRow(
+                      word: wordDefinition['word']!,
+                      definition: wordDefinition['definition']!,
+                      onEdit: () => showWordEditDialog(
+                        context,
+                        index,
+                        int.parse(wordDefinition['id'].toString()),
+                      ),
+                      onListen: () => _speak(wordDefinition['word']!),
+                      isStarred: wordDefinition['isStarred'] == 'true',
+                      onMarkStar: () {
+                        setState(() {
+                          _wordDefinitions[index]['isStarred'] =
+                              (wordDefinition['isStarred'] == 'true')
+                                  ? 'false'
+                                  : 'true';
+                        });
+                      },
+                    );
+                  }
                 },
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.green),
-                ),
-                icon: const Icon(Icons.check, color: Colors.white),
-                label:
-                    const Text('Save', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
         ),
-      ),
-    );
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                _saveChanges();
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+              ),
+              icon: const Icon(Icons.check, color: Colors.white),
+              label: const Text(
+                'Done',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+);
+
   }
 
   void addWordDefinition() async {
@@ -312,7 +328,7 @@ class _EditTopicPageState extends State<EditTopicPage> {
               setState(() {});
               Navigator.pop(context);
             },
-            child: const Text('Save'),
+            child: const Text('Done'),
           ),
         ],
       ),

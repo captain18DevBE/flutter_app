@@ -2,6 +2,7 @@ import 'package:english_learning_app/controllers/StatusLearningController.dart';
 import 'package:english_learning_app/controllers/UserAuthController.dart';
 import 'package:english_learning_app/models/StatusLearning.dart';
 import 'package:english_learning_app/pages/folder/edit_folder.dart';
+import 'package:english_learning_app/pages/folder/view_folder.dart';
 import 'package:english_learning_app/pages/menu_topic/learning.dart';
 import 'package:english_learning_app/pages/topics/edit_topic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -186,7 +187,7 @@ class _LibraryPageState extends State<LibraryPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditFolderPage()),
+                MaterialPageRoute(builder: (context) => ViewFolderPage(folderId: folder.id)),
               );
             },
           ),

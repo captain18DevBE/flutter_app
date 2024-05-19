@@ -400,6 +400,8 @@ class _LearningState extends State<Learning> {
                       height: 200,
                       width: double.infinity,
                       child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
                         itemCount: _cards.length,
                         itemBuilder: ((context, index) {
                           return detailCards(index);

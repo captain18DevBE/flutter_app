@@ -1,27 +1,88 @@
 import 'package:flutter/material.dart';
+import 'package:english_learning_app/controllers/LibraryController.dart';
+import 'package:english_learning_app/controllers/TopicController.dart';
+import 'package:english_learning_app/models/Library.dart';
+import 'package:english_learning_app/models/Topic.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EditFolderPage extends StatefulWidget {
+  final int folderId;
+
+  const EditFolderPage({required this.folderId});
+
   @override
   _EditFolderPageState createState() => _EditFolderPageState();
 }
 
 class _EditFolderPageState extends State<EditFolderPage> {
+  final _libraryController = LibraryController();
+  final _topicController = TopicController();
   final _folderNameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  List<Topic1> _existingTopics = [];
-  List<Topic1> _selectedTopics = [];
+  List<Topic> _existingTopics = [];
+  List<Topic> _selectedTopics = [];
   bool _isAddingDescription = false;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _existingTopics = [
-      Topic1(name: 'Topic 1', wordCount: 10),
-      Topic1(name: 'Topic 2', wordCount: 20),
-      Topic1(name: 'Topic 3', wordCount: 30),
-    ];
-    _selectedTopics.add(_existingTopics[1]);
+    _loadFolder();
+    _loadExistingTopics();
+  }
+
+  Future<void> _loadFolder() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      DocumentSnapshot folderSnapshot = await _libraryController.readLibraryById(widget.folderId);
+      if (!folderSnapshot.exists) {
+        throw Exception('Folder not found');
+      }
+
+      Map<String, dynamic> folderData = folderSnapshot.data() as Map<String, dynamic>;
+      Library folder = Library(
+        id: folderData['id'],
+        title: folderData['title'],
+        description: folderData['description'],
+        createBy: folderData['create_by'],
+      );
+
+      folder.topics = List<int>.from(folderData['topics']);
+
+      _folderNameController.text = folder.title;
+      _descriptionController.text = folder.description ?? '';
+      _isAddingDescription = folder.description != null;
+
+      List<Topic> selectedTopics = [];
+      for (int topicId in folder.topics) {
+        Topic topic = await _topicController.getTopicById(topicId);
+        selectedTopics.add(topic);
+      }
+
+      setState(() {
+        _selectedTopics = selectedTopics;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadExistingTopics() async {
+    try {
+      List<Topic> existingTopics = await _topicController.readTopicByEmailUserOwner();
+      setState(() {
+        _existingTopics = existingTopics;
+      });
+    } catch (e) {
+      print('Failed to load existing topics: $e');
+    }
   }
 
   @override
@@ -119,9 +180,9 @@ class _EditFolderPageState extends State<EditFolderPage> {
                           ),
                         )
                       : SizedBox(),
-              if (_selectedTopics.length > 0)
+              if (_selectedTopics.isNotEmpty)
                 ElevatedButton.icon(
-                  onPressed: _createFolder,
+                  onPressed: _updateFolder,
                   style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.all<Color>(Colors.green),
@@ -131,7 +192,7 @@ class _EditFolderPageState extends State<EditFolderPage> {
                     color: Colors.white,
                   ),
                   label: const Text(
-                    'Create',
+                    'Save',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -187,7 +248,7 @@ class _EditFolderPageState extends State<EditFolderPage> {
     );
   }
 
-  Widget _buildTopicCard(Topic1 topic) {
+  Widget _buildTopicCard(Topic topic) {
     return Container(
       margin: const EdgeInsets.all(5),
       padding: const EdgeInsets.all(15),
@@ -208,8 +269,8 @@ class _EditFolderPageState extends State<EditFolderPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(topic.name, style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('Words: ${topic.wordCount}'),
+              Text(topic.title, style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('Words: ${topic.cards.length}'),
             ],
           ),
           Spacer(),
@@ -236,10 +297,13 @@ class _EditFolderPageState extends State<EditFolderPage> {
               itemCount: _existingTopics.length,
               itemBuilder: (context, index) {
                 final topic = _existingTopics[index];
+                print(_existingTopics.toString());
+                bool isChecked = _selectedTopics.contains(topic);
+                print(isChecked);
                 return CheckboxListTile(
-                  title: Text(topic.name),
-                  subtitle: Text('Words: ${topic.wordCount}'),
-                  value: _selectedTopics.contains(topic),
+                  title: Text(topic.title),
+                  subtitle: Text('Words: ${topic.cards.length}'),
+                  value: isChecked,
                   onChanged: (value) {
                     setState(() {
                       toggleTopicSelection(topic);
@@ -255,8 +319,11 @@ class _EditFolderPageState extends State<EditFolderPage> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () => addSelectedTopics(),
-              child: const Text('Done'),
+              onPressed: () {
+                Navigator.pop(context);
+                addSelectedTopics();
+              },
+              child: const Text('Save'),
             ),
           ],
         );
@@ -264,7 +331,7 @@ class _EditFolderPageState extends State<EditFolderPage> {
     );
   }
 
-  void toggleTopicSelection(Topic1 topic) {
+  void toggleTopicSelection(Topic topic) {
     setState(() {
       if (_selectedTopics.contains(topic)) {
         _selectedTopics.remove(topic);
@@ -275,42 +342,54 @@ class _EditFolderPageState extends State<EditFolderPage> {
   }
 
   void addSelectedTopics() {
-    Navigator.pop(context);
+    setState(() {
+      _selectedTopics = _selectedTopics.toSet().toList();
+    });
   }
 
-  void removeTopic(Topic1 topic) {
+  void removeTopic(Topic topic) {
     setState(() {
       _selectedTopics.remove(topic);
     });
-    _showSnackbar('Removed ${topic.name}');
   }
 
-  void _createFolder() {
+  Future<void> _updateFolder() async {
     setState(() {
       _isLoading = true;
     });
 
-    Future.delayed(Duration(seconds: 2), () {
+    try {
+      final String folderName = _folderNameController.text.trim();
+      final String? description =
+          _isAddingDescription ? _descriptionController.text.trim() : null;
+
+      List<int> topicIds = _selectedTopics.map((topic) => topic.id).toList();
+
+      Library updatedLibrary = Library(
+        id: widget.folderId,
+        title: folderName,
+        description: description,
+        createBy: FirebaseAuth.instance.currentUser!.email!,
+      )..topics = topicIds;
+
+      await _libraryController.updateLibraryById(updatedLibrary);
+
       setState(() {
         _isLoading = false;
-        Navigator.pop(context);
-        _showSnackbar('Folder created successfully!');
       });
-    });
+
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Folder updated successfully')),
+      );
+      
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update folder: $e')),
+      );
+    }
   }
-
-  void _showSnackbar(String message) {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    scaffoldMessenger.hideCurrentSnackBar();
-    scaffoldMessenger.showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-}
-
-class Topic1 {
-  final String name;
-  final int wordCount;
-
-  const Topic1({required this.name, required this.wordCount});
 }
